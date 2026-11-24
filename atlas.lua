@@ -1,11 +1,11 @@
 -- Atlas VI1: source hosted and pinned in nguyenhoangan1825/vh-runtime.
 -- Full editable source: atlas/source.lua; provenance: atlas/ORIGIN.md.
 -- Config folder: atlas-test/. Diagnostic variant adds observation-only logs.
-local SOURCE_URL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/fb65abd78bf481c4a0500cbd73c76679f173136b/atlas/source.lua"
-local EXPECTED_BYTES = 2689084
-local EXPECTED_ADLER = 4245394029
-local PATCHED_ADLER = 4245394029
-local TAG = "[Atlas VI1] "
+local SOURCE_URL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/1af11b47dd4baa19d9a004ce2b1cce8b3f2ee884/atlas/source.lua"
+local EXPECTED_BYTES = 2691326
+local EXPECTED_ADLER = 1824534518
+local PATCHED_ADLER = 1824534518
+local TAG = "[Atlas VI2] "
 local env = getgenv and getgenv() or _G
 local function fail(message) error(TAG .. tostring(message), 0) end
 local function log(message) print(TAG .. tostring(message)) end
