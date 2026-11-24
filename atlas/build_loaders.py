@@ -26,7 +26,7 @@ def main():
     url='https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/'+args.source_commit+'/atlas/source.lua'
     for name,body,instructions in [('atlas.lua',source,''),('atlas-debug.lua',debug,'\n'.join(' source=replaceLiteral(source,'+lua_long(a)+','+lua_long(b)+',1)'for a,b in patches))]:
         text=template
-        values={'@@SOURCE_URL@@':json.dumps(url),'@@SOURCE_BYTES@@':str(len(original)),'@@SOURCE_ADLER@@':str(zlib.adler32(original)),'@@PATCHED_ADLER@@':str(zlib.adler32(body.encode())),'@@PATCHES@@':instructions,'@@TAG@@':json.dumps('[Atlas VI1 D1] 'if name=='atlas-debug.lua'else '[Atlas VI1] ')}
+        values={'@@SOURCE_URL@@':json.dumps(url),'@@SOURCE_BYTES@@':str(len(original)),'@@SOURCE_ADLER@@':str(zlib.adler32(original)),'@@PATCHED_ADLER@@':str(zlib.adler32(body.encode())),'@@PATCHES@@':instructions,'@@TAG@@':json.dumps('[Atlas VI2 D1] 'if name=='atlas-debug.lua'else '[Atlas VI2] ')}
         for key,value in values.items():text=text.replace(key,value)
         (target/name).write_text(text,encoding='utf8',newline='\n')
         print(name,'bytes',len(text.encode()),'source',args.source_commit)

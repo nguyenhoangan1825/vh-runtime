@@ -68,7 +68,7 @@
     "\tif _G.atlas == ScreenGui then _G.atlas = nil;_G.__AtlasGetDiagnostic=nil end\n"
   ],
   [
-    "local title = \"Atlas+ [VI1]\"",
-    "local title = \"Atlas+ [VI1 D1]\""
+    "local title = \"Atlas+ [VI2]\"",
+    "local title = \"Atlas+ [VI2 D1]\""
   ]
 ]

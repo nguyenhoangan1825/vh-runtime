@@ -1797,14 +1797,14 @@ ui.viDictionary = {
  ["Last combo owner: waiting for a new combo"]="Chủ Combo gần nhất: đang chờ Combo mới",
  ["Detected: 0 | Assigned: 0 | RTT: waiting"]="Phát hiện: 0 | Đã phân công: 0 | RTT: đang chờ",
  ["Tracking: waiting for combo FX"]="Theo dõi: đang chờ hiệu ứng Combo",
- ["One launcher for all computers. All accounts must be in the same Roblox server."]="Chỉ cần một máy chạy coordinator. Tất cả acc phải ở cùng một server Roblox.",
+ ["One launcher for all computers. All accounts must be in the same Roblox server."]="Dùng cùng launcher trên các máy. Tất cả acc phải ở cùng một server Roblox.",
  ["1 = highest priority"]="1 là mức ưu tiên cao nhất.",
  ["Unavailable targets are skipped"]="Bỏ qua mục tiêu hiện không thể nhặt.",
  ["Enabled features + field / hazard checks apply"]="Chỉ dùng tính năng đang bật và vẫn kiểm tra giới hạn bãi, vùng nguy hiểm.",
  ["Custom off = petals first, then script order"]="Tắt tùy chỉnh: ưu tiên Petal trước, sau đó theo thứ tự mặc định của script.",
  ["Safeshower overrides all other activities during your shower"]="Khi nhặt Star Shower của bạn, script tạm nhường các việc khác cho đến khi xong.",
  ["Field coverage: green = player inside; red = empty. Labels show current occupants."]="Vùng xanh: có người đứng trong vùng. Vùng đỏ: đang trống. Nhãn hiển thị người hiện ở trong đó.",
- ["Stump route: continuous infinity; each side and middle once per repetition."]="Ở Stump, nhân vật chạy vòng số 8 liên tục; mỗi lượt đi qua hai bên và giữa bãi.",
+ ["Stump route: continuous infinity; each side and middle once per repetition."]="Ở Stump: chọn một phần bãi thì chạy tuyến số 8, đi qua hai bên và giữa; chạy cả bãi thì theo đường oval.",
  ["Strict collection bounds use the selected Farm Field and quadrant. Scheduled travel still runs."]="Giới hạn nhặt đồ theo bãi và ô đã chọn. Script vẫn được rời bãi để làm các tác vụ khác.",
  ["Preview works while farming is off. Stump visuals follow its trimmed idle footprint."]="Có thể xem vùng farm ngay cả khi tắt Autofarm. Vùng xem trước ở Stump bám theo đường chạy thực tế.",
  ["Auto Sprinkler stacks lower tiers at the field center while jumping; Supreme places once."]="Auto Sprinkler đặt các vòi tưới cấp thấp ở tâm bãi khi nhảy. Supreme Saturator chỉ đặt một lần.",
@@ -1831,8 +1831,8 @@ ui.viDictionary = {
  ["During Scorching Star, prioritize Bear Morph and Inspire. Otherwise refresh Bear Morph at 10 seconds remaining. Off: use the duped allowlist plus Smileys."]="Khi Scorching Star đang chạy, ưu tiên Bear Morph và Inspire. Ngoài lúc đó, làm mới Bear Morph khi còn 10 giây. Tắt tùy chọn này thì dùng danh sách Duped cho phép và Smiley.",
  ["Prioritize Precision to 10x, refresh below 65% duration, then prioritize purple marks. Overrides ordinary gathering order."]="Ưu tiên lên Precision x10, làm mới khi thời lượng còn dưới 65%, rồi nhặt mark tím. Ưu tiên này cao hơn thứ tự nhặt đồ thông thường.",
  ["This will detect which targets are from\nwhich bees and get all 3 targets if\n2 were hit by mistake while getting mark"]="Nhận diện bia của từng Precise Bee. Nếu lỡ chạm hai bia khi lấy mark, script sẽ cố xử lý đủ cả ba bia.",
- ["Only combos and smileys interrupt idle farming in any field. Requires Idle Field Loop. Other tasks and conversion are skipped while enabled."]="Khi farm vòng, chỉ dừng để nhặt Combo và Smiley. Cần bật Idle Field Loop. Trong chế độ này, các việc khác và cả đổi mật đều bị bỏ qua.",
- ["Invisible collision borders prevent drifting out while gathering. They activate after entry and disappear during travel, combos and showers. Idle quadrants use their own borders; Stump follows its custom footprint."]="Tạo viền va chạm ẩn để nhân vật không trôi khỏi bãi khi farm. Viền bật sau khi vào bãi và tạm tắt lúc di chuyển, nhặt Combo hoặc Shower. Farm theo ô có viền riêng; Stump dùng vùng chạy riêng.",
+ ["Only combos and smileys interrupt idle farming in any field. Requires Idle Field Loop. Other tasks and conversion are skipped while enabled."]="Cần bật Chạy lặp theo tuyến (Idle Loop). Nhân vật chỉ rời tuyến để ăn Smiley (token mặt cười do Digital Bee tạo ra) hoặc đón Combo Coconut. Bật thêm mục nhặt Smiley/Combo tương ứng. Các tác vụ khác, kể cả về hive chuyển phấn thành mật, sẽ bị bỏ qua khi chế độ này hoạt động.",
+ ["Invisible collision borders prevent drifting out while gathering. They activate after entry and disappear during travel, combos and showers. Idle quadrants use their own borders; Stump follows its custom footprint."]="Tạo rào ẩn để giữ nhân vật trong bãi khi farm. Rào bật sau khi vào bãi, tạm tắt lúc đi làm tác vụ, đón Combo Coconut hoặc nhặt Star Shower. Nếu chọn một phần bãi để chạy tuyến, rào bám theo phần đó; Stump dùng ranh giới riêng.",
  ["Default mask is located in\nconvert settings"]="Chọn mask mặc định trong Convert Settings.",
  ["Auto toys also needs to be enabled"]="Cần bật cả Auto Toys.",
  ["Interrupts conversion, gathering, and other Atlas+ tasks when Mondo is present. Does not hop servers."]="Khi có Mondo, tạm dừng đổi mật, farm và các việc khác để ưu tiên đánh Mondo. Tùy chọn này không hop server.",
@@ -1849,11 +1849,11 @@ ui.viDictionary = {
  ["This hides names at hives (client side)"]="Ẩn tên ở hive trên màn hình của bạn; người khác vẫn thấy bình thường.",
  ["You need to have atlas in your\nautoexec folder"]="Cần đặt launcher Atlas vào thư mục autoexec để tự chạy lại sau khi rejoin.",
  ["Show All Field Coverage"]="Hiện vùng có người trong mọi bãi",
- ["Ignore Outside Quadrant"]="Chỉ nhặt trong ô đã chọn",
- ["Idle Field Loop"]="Farm theo vòng trong bãi",
- ["Field Idle: Smileys & Combos Only"]="Farm vòng: chỉ nhặt Smiley và Combo",
- ["Idle Pattern Density"]="Tăng trọng lượng khi chạy vòng",
- ["Idle Pattern 140 PMS"]="Chạy vòng ở tốc độ 140 PMS",
+ ["Ignore Outside Quadrant"]="Chỉ nhặt trong phần bãi đã chọn",
+ ["Idle Field Loop"]="Chạy lặp theo tuyến (Idle Loop)",
+ ["Field Idle: Smileys & Combos Only"]="Chỉ ngắt tuyến để ăn Smiley / đón Combo",
+ ["Idle Pattern Density"]="Tăng khối lượng khi chạy tuyến",
+ ["Idle Pattern 140 PMS"]="Tốc độ chạy tuyến: 140 studs/giây",
  ["Prevent Field Edge Drift"]="Chống trôi khỏi mép bãi",
  ["Show Farming Area"]="Hiện vùng farm đã chọn",
  ["Maintain Precision / Spam Marks"]="Giữ Precision / ưu tiên mark tím",
@@ -1867,7 +1867,13 @@ ui.viDictionary = {
  ["You must join the bss group"]="Cần tham gia group BSS.",
  ["You must enable the red cannon"]="Cần bật Use Red Cannon.",
  ["No bee selected"]="Chưa chọn bee.",
- ["Report printed; copied if clipboard is supported"]="Đã in log ra console và chép vào clipboard nếu executor hỗ trợ."
+ ["Report printed; copied if clipboard is supported"]="Đã in log ra console và chép vào clipboard nếu executor hỗ trợ.",
+ ["Minimum Level"]="Level thấp nhất",
+ ["Maximum Level"]="Level cao nhất",
+ ["Minimum Time (seconds)"]="Thời gian còn lại tối thiểu (giây)",
+ ["Farm Puffshrooms"]="Đánh Puffshroom",
+ ["High Level Priority"]="Ưu tiên Puffshroom level cao",
+ ["Maintain 100x Blessing"]="Duy trì Puffshroom Blessing x100"
 }
 ui.viPrefixes = {
  ["Uptime: "]="Đã chạy: ",
@@ -1881,6 +1887,11 @@ ui.viPrefixes = {
  ["Next hive slot: "]="Ô hive tiếp theo: ",
  ["Farm: "]="Đang làm: ",
  ["Build: "]="Bản: "
+}
+ui.viHelp = {
+ ["Idle Field Loop"]="Khi không có mục tiêu cần nhặt, nhân vật chạy lặp theo tuyến quanh bãi hoặc phần bãi đã chọn, thay vì đi tới điểm ngẫu nhiên. Vẫn có thể ngắt tuyến để nhặt đồ và làm tác vụ. Muốn chỉ ăn Smiley và đón Combo Coconut thì bật thêm tùy chọn ngay bên dưới.",
+ ["Idle Pattern Density"]="Khi chạy tuyến, tăng mật độ vật lý của HumanoidRootPart lên 10 lần, tối đa 100, làm nhân vật nặng hơn. Khi dừng chạy tuyến, script trả lại thông số cũ. Tùy chọn này không tăng tốc độ hay mật độ hoa.",
+ ["Idle Pattern 140 PMS"]="Đặt WalkSpeed = 140 chỉ trong lúc chạy tuyến, tương đương 140 studs/giây. Khi dừng chạy tuyến, script trả lại tốc độ trước đó nếu tốc độ chưa bị thay đổi bởi nguồn khác."
 }
 ui.readableRows = setmetatable({}, {__mode="k"})
 function ui.VI(value)
@@ -1912,11 +1923,11 @@ function ui.ReadableRow(source,row,options)
  visual.Name="AtlasReadableText"
  visual.BackgroundTransparency=1
  visual.BorderSizePixel=0
- visual.TextWrapped=true
+ visual.TextWrapped=not opts.singleLine
  visual.TextScaled=false
  visual.TextTruncate=Enum.TextTruncate.None
  visual.TextXAlignment=opts.align or Enum.TextXAlignment.Left
- visual.TextYAlignment=Enum.TextYAlignment.Top
+ visual.TextYAlignment=Enum.TextYAlignment.Center
  visual.ZIndex=source.ZIndex+1
  visual.Parent=row
  source.TextTransparency=1
@@ -1932,11 +1943,23 @@ function ui.ReadableRow(source,row,options)
   local usable=math.max(24,width-left-right)
   visual.Text=ui.VI(source.Text)
   visual.Font=source.Font;visual.TextSize=source.TextSize
+  -- Navigation stays on one line; long descriptions still wrap at full size.
+  if opts.singleLine then
+   local size=source.TextSize
+   while size>(opts.minTextSize or 10) do
+    local ok,bounds=pcall(function()return getService("TextService"):GetTextSize(visual.Text,size,visual.Font,Vector2.new(100000,100000))end)
+    local measured=ok and bounds.X or (utf8.len(visual.Text) or #visual.Text)*size*.56
+    if measured<=usable then break end
+    size-=.5
+   end
+   visual.TextSize=size
+  end
   visual.TextColor3=source.TextColor3
   local textHeight=ui.TextHeight(visual.Text,usable,visual.Font,visual.TextSize)
-  visual.Position=UDim2.new(0,left,0,opts.top or 2)
-  visual.Size=UDim2.new(0,usable,0,textHeight)
   local height=math.max(opts.minHeight or 20,textHeight+(opts.top or 2)+(opts.bottom or 2))
+  -- Share the row's vertical centre with checkbox/value labels, including wrapped rows.
+  visual.Position=UDim2.new(0,left,0,opts.top or 2)
+  visual.Size=UDim2.new(0,usable,0,height-(opts.top or 2)-(opts.bottom or 2))
   if math.abs(row.Size.Y.Offset-height)>.5 or row.Size.Y.Scale~=0 then
    row.Size=UDim2.new(row.Size.X.Scale,row.Size.X.Offset,0,height)
   end
@@ -1992,7 +2015,7 @@ function ui.InlineHelp(row,box,title,description,onLayout)
  button.Text="?"
  button.TextColor3=Color3.fromRGB(215,226,239)
  button.TextSize=15
- button.Position=UDim2.new(1,-25,0,0)
+ button.Position=UDim2.new(1,-25,.5,-12.5)
  button.Size=UDim2.new(0,25,0,25)
  button.Parent=row
  local buttonCorner=Instance.new("UICorner");buttonCorner.CornerRadius=UDim.new(0,5);buttonCorner.Parent=button
@@ -4215,7 +4238,7 @@ do
 		end
 	end))
 
-	local title = "Atlas+ [VI1]"
+	local title = "Atlas+ [VI2]"
 	local uicolor = _G.uicolor and _G.uicolor or Color3.fromRGB(41, 74, 122)
 	local isDesktop = ScreenGui.AbsoluteSize.X >= 850 and ScreenGui.AbsoluteSize.Y >= 500
 
@@ -5039,7 +5062,7 @@ do
 	ui.AddTab = function(tabName, image, twoColumn, v71)
 		local clone = uiParts.tabbutton:Clone()
 		clone.Text = "        " .. tabName
-  ui.ReadableRow(clone,clone,{left=30,right=4,minHeight=23})
+  ui.ReadableRow(clone,clone,{left=27,right=3,minHeight=23,singleLine=true})
 		clone.Parent = ScrollingFrame
 		clone.TabIcon.Image = image
 		local ScrollingFrame2 = Instance.new("ScrollingFrame")
@@ -5215,9 +5238,11 @@ do
 				title2.Text = text
 				clone5.Parent = box
 
-    ui.ReadableRow(title2,clone5,{left=25,right=options and options.Tooltip and 34 or 5,minHeight=25,onLayout=function()if folderApi.Refresh then folderApi.Refresh()end end})
-    if options and options.Tooltip then
-     ui.InlineHelp(clone5,box,text,options.Tooltip,function()if folderApi.Refresh then folderApi.Refresh()end end)
+    local helpText=options and options.Tooltip or ui.viHelp[text]
+    switch.Position=UDim2.new(0,0,.5,-10)
+    ui.ReadableRow(title2,clone5,{left=25,right=helpText and 34 or 5,minHeight=25,onLayout=function()if folderApi.Refresh then folderApi.Refresh()end end})
+    if helpText then
+     ui.InlineHelp(clone5,box,text,helpText,function()if folderApi.Refresh then folderApi.Refresh()end end)
     end
 
 				local isOn = false
@@ -68193,7 +68218,7 @@ end)
 do
 	local Home = controls.home.AddFolder("Home")
 	local uptimeLabel = Home.AddLabel("Uptime: 00:00:00")
- Home.AddLabel("Giao diện VI1 · Mô tả đầy đủ")
+ Home.AddLabel("Giao diện VI2 · Mô tả đầy đủ")
 	local serverUptimeLabel = Home.AddLabel("Server Uptime: " .. formatTime(workspace.ServerTime.Value))
 	Home.AddHorizontalAlignment()
 	local sessionHoneyLabel = Home.AddLabel("Session Honey: 0?")
