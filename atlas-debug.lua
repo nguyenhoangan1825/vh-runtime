@@ -1,11 +1,11 @@
--- Atlas VI1: source hosted and pinned in nguyenhoangan1825/vh-runtime.
+-- Atlas VI3: source hosted and pinned in nguyenhoangan1825/vh-runtime.
 -- Full editable source: atlas/source.lua; provenance: atlas/ORIGIN.md.
 -- Config folder: atlas-test/. Diagnostic variant adds observation-only logs.
-local SOURCE_URL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/1af11b47dd4baa19d9a004ce2b1cce8b3f2ee884/atlas/source.lua"
-local EXPECTED_BYTES = 2691326
-local EXPECTED_ADLER = 1824534518
-local PATCHED_ADLER = 542209605
-local TAG = "[Atlas VI2 D1] "
+local SOURCE_URL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/7fc86d29523cf5af89073b186d13d2c0b1242531/atlas/source.lua"
+local EXPECTED_BYTES = 2713872
+local EXPECTED_ADLER = 1219730727
+local PATCHED_ADLER = 2274092404
+local TAG = "[Atlas VI3 D1] "
 local env = getgenv and getgenv() or _G
 local function fail(message) error(TAG .. tostring(message), 0) end
 local function log(message) print(TAG .. tostring(message)) end
@@ -31,7 +31,7 @@ local function patchSource(source)
  end
  source=replaceLiteral(source,[====[local connections = { list = {}, closed = false }]====],[====[local connections = { list = {}, closed = false }
 local farmDiagnostic = {
- build="D1-20261124", phases=setmetatable({}, {__mode="k"}),
+ build="VI3-D1-20261124", phases=setmetatable({}, {__mode="k"}),
  pending=setmetatable({}, {__mode="k"}), lastWrite=0,
 }
 function farmDiagnostic:Mark(name)
@@ -176,7 +176,7 @@ end
  source=replaceLiteral(source,[====[		killMondo(nil,nil,nil,true)]====],[====[		farmDiagnostic:Mark("Mondo Priority: fight/loot")
 		killMondo(nil,nil,nil,true)]====],1)
  source=replaceLiteral(source,[====[	local runtimeMemoryLabel = Home.AddLabel("Client Lua heap: measuring...")]====],[====[ local runtimeMemoryLabel = Home.AddLabel("Client Lua heap: measuring...")
- Home.AddLabel("Build: D1-20261124 (logging only)")
+ Home.AddLabel("Build: VI3-D1-20261124 (logging only)")
  local diagnosticLabel=Home.AddLabel("Farm: starting")
  Home.AddButton("Copy Stuck Report",function()
   local text=farmDiagnostic:Text()
@@ -193,7 +193,7 @@ end
  source=replaceLiteral(source,[====[	if _G.atlas == ScreenGui then _G.atlas = nil end
 ]====],[====[	if _G.atlas == ScreenGui then _G.atlas = nil;_G.__AtlasGetDiagnostic=nil end
 ]====],1)
- source=replaceLiteral(source,[====[local title = "Atlas+ [VI2]"]====],[====[local title = "Atlas+ [VI2 D1]"]====],1)
+ source=replaceLiteral(source,[====[local title = "Atlas+ [VI3]"]====],[====[local title = "Atlas+ [VI3 D1]"]====],1)
  if checksum(source)~=PATCHED_ADLER then fail("Patched source checksum mismatch.")end
  return source
 end
