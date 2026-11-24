@@ -1706,6 +1706,8 @@ end
 
 local ui = {}
 -- Vietnamese display text + width-aware rows. No config IDs or farm callbacks change.
+do
+local ui=ui -- Keep pending UI callbacks safe if the upstream shutdown clears its ui variable.
 ui.viDictionary = {
  ["Lower number = picked first. Equal numbers use existing tie-breaks."]="Số càng nhỏ càng được chọn trước. Nếu bằng điểm, script dùng cách ưu tiên sẵn có.",
  ["Edits affect the chosen preset only. 51 is the original unranked fallback."]="Chỉ sửa preset đang chọn. Mức 51 là ưu tiên mặc định cho bee chưa được xếp hạng.",
@@ -1799,6 +1801,7 @@ ui.viDictionary = {
  ["Farm Puffshrooms"]="Đánh Puffshroom",
  ["High Level Priority"]="Ưu tiên Puffshroom level cao",
  ["Maintain 100x Blessing"]="Duy trì Puffshroom Blessing x100",
+ ["Copy Mondo Hop Status"]="Chép trạng thái Mondo",
  ["Chases puffs anywhere until one hits the level in the zone"]="Đuổi Puffshroom ở các bãi được phép. Khi có Puff đủ level trong khu 15 bee hoặc Strawberry, chuyển sang tập trung khu đó. Level chuyển chế độ do mục bên trên quyết định.",
  ["Ticked rarities: every account drops everything for it"]="Các độ hiếm được tick sẽ được ưu tiên đặc biệt: acc bỏ tác vụ hiện tại để đánh Puff đó. Vẫn cần bật Autofarm và Farm Puffshrooms; không giành quyền khi Mondo, Combo hoặc Shower đang xử lý.",
  ["Accounts finish puffs in their field before moving"]="Ưu tiên đánh Puff trong bãi đang đứng rồi mới tìm sang bãi khác. Chế độ ưu tiên Puff hiếm có thể ngắt việc này.",
@@ -1878,6 +1881,19 @@ ui.viHelp = {
  ["Auto Royal Jelly"]="Roll một ô đã chọn bằng nút Chọn ô bee cần roll. Dừng khi ra loại bee, độ hiếm đã chọn hoặc bất kỳ Gifted nếu bật mục tương ứng. Bản nền này chưa hỗ trợ chọn nhiều ô để roll lần lượt."
 }
 ui.readableRows = setmetatable({}, {__mode="k"})
+ui.textHeightCache,ui.textHeightCount={},0
+ui.layoutQueue=setmetatable({}, {__mode="k"})
+function ui.QueueLayout(owner,callback)
+ ui.layoutQueue[owner]=callback
+ if ui.layoutQueued then return end
+ ui.layoutQueued=true
+ task.defer(function()
+  ui.layoutQueued=false
+  local pending=ui.layoutQueue
+  ui.layoutQueue=setmetatable({}, {__mode="k"})
+  for _,refresh in pairs(pending)do refresh()end
+ end)
+end
 function ui.VI(value)
  local text=string.gsub(tostring(value or ""),"^ +","")
  local translated=ui.viDictionary[text]
@@ -1889,14 +1905,23 @@ function ui.VI(value)
 end
 function ui.TextHeight(text,width,font,size)
  width=math.max(24,math.floor(width))
+ local key=tostring(font).."\0"..size.."\0"..width.."\0"..text
+ local cached=ui.textHeightCache[key]
+ if cached then return cached end
  local ok,bounds=pcall(function()return getService("TextService"):GetTextSize(text,size,font,Vector2.new(width,100000))end)
- if ok and bounds and bounds.Y then return math.max(size,math.ceil(bounds.Y)+2) end
- local count=0
- for line in string.gmatch(text.."\n","(.-)\n")do
-  local n=utf8.len(line) or #line
-  count+=math.max(1,math.ceil(n*size*.56/width))
+ local height
+ if ok and bounds and bounds.Y then height=math.max(size,math.ceil(bounds.Y)+2)
+ else
+  local count=0
+  for line in string.gmatch(text.."\n","(.-)\n")do
+   local n=utf8.len(line) or #line
+   count+=math.max(1,math.ceil(n*size*.56/width))
+  end
+  height=math.max(size,count*(size+3))
  end
- return math.max(size,count*(size+3))
+ if ui.textHeightCount>=1536 then table.clear(ui.textHeightCache);ui.textHeightCount=0 end
+ ui.textHeightCache[key]=height;ui.textHeightCount+=1
+ return height
 end
 function ui.ReadableRow(source,row,options)
  if ui.readableRows[source] then return ui.readableRows[source] end
@@ -1916,6 +1941,8 @@ function ui.ReadableRow(source,row,options)
  visual.Parent=row
  source.TextTransparency=1
  local binding={visual=visual}
+ local lastText,lastFont,lastSize,lastWidth,lastHeight
+ local observedWidth=row.AbsoluteSize.X
  ui.readableRows[source]=binding
  local function refresh()
   queued=false
@@ -1925,8 +1952,13 @@ function ui.ReadableRow(source,row,options)
   if width<=0 then return end
   local left,right=opts.left or 0,opts.right or 0
   local usable=math.max(24,width-left-right)
-  visual.Text=ui.VI(source.Text)
-  visual.Font=source.Font;visual.TextSize=source.TextSize
+  local text,font,size=ui.VI(source.Text),source.Font,source.TextSize
+  visual.TextColor3=source.TextColor3
+  -- Colour/ancestry/height notifications must not repeat font measurement or folder scans.
+  if text==lastText and font==lastFont and size==lastSize and usable==lastWidth then return end
+  lastText,lastFont,lastSize,lastWidth=text,font,size,usable
+  visual.Text=text
+  visual.Font=font;visual.TextSize=size
   -- Navigation stays on one line; long descriptions still wrap at full size.
   if opts.singleLine then
    local size=source.TextSize
@@ -1938,7 +1970,6 @@ function ui.ReadableRow(source,row,options)
    end
    visual.TextSize=size
   end
-  visual.TextColor3=source.TextColor3
   local textHeight=ui.TextHeight(visual.Text,usable,visual.Font,visual.TextSize)
   local height=math.max(opts.minHeight or 20,textHeight+(opts.top or 2)+(opts.bottom or 2))
   -- Share the row's vertical centre with checkbox/value labels, including wrapped rows.
@@ -1947,8 +1978,11 @@ function ui.ReadableRow(source,row,options)
   if math.abs(row.Size.Y.Offset-height)>.5 or row.Size.Y.Scale~=0 then
    row.Size=UDim2.new(row.Size.X.Scale,row.Size.X.Offset,0,height)
   end
-  if opts.onHeight then opts.onHeight(height) end
-  if opts.onLayout then opts.onLayout()end
+  if height~=lastHeight then
+   lastHeight=height
+   if opts.onHeight then opts.onHeight(height) end
+   if opts.onLayout then opts.onLayout()end
+  end
  end
  local function queue()
   if queued or not alive then return end
@@ -1957,8 +1991,12 @@ function ui.ReadableRow(source,row,options)
  binding.Refresh=queue
  local function listen(signal,callback)listeners[#listeners+1]=signal:Connect(callback)end
  for _,property in ipairs({"Text","Font","TextSize","TextColor3"})do listen(source:GetPropertyChangedSignal(property),queue)end
- listen(row:GetPropertyChangedSignal("AbsoluteSize"),queue)
- listen(row.AncestryChanged,queue)
+ local function widthChanged()
+  local width=row.AbsoluteSize.X
+  if width~=observedWidth or not lastHeight then observedWidth=width;queue()end
+ end
+ listen(row:GetPropertyChangedSignal("AbsoluteSize"),widthChanged)
+ listen(row.AncestryChanged,widthChanged)
  listen(row.Destroying,function()
   alive=false
   ui.readableRows[source]=nil
@@ -2027,12 +2065,29 @@ function ui.ObserveReadableRows(screen)
    ui.ReadableRow(object,parent,{left=7,right=52,minHeight=22})
   end
  end
- connections:Add("VietnameseReadableRows",screen.DescendantAdded:Connect(function(object)task.defer(function()observe(object)end)end))
+ local pending=setmetatable({}, {__mode="k"})
+ local queued=false
+ local function schedule(object)
+  if ui.readableRows[object] or pending[object] then return end
+  if not ((object:IsA("TextButton") and object.Name=="Button") or (object:IsA("TextLabel") and object.Name=="Title")) then return end
+  pending[object]=true
+  if queued then return end
+  queued=true
+  task.defer(function()
+   queued=false
+   local batch=pending;pending=setmetatable({}, {__mode="k"})
+   for candidate in pairs(batch)do if candidate.Parent then observe(candidate)end end
+  end)
+ end
+ connections:Add("VietnameseReadableRows",screen.DescendantAdded:Connect(schedule))
  for _,object in ipairs(screen:GetDescendants())do observe(object)end
 end
 function ui.ClampRowWidth(row,container,desired)
+ local previousWidth
  local function fit()
   local available=container.AbsoluteSize.X-12
+  if available==previousWidth then return end
+  previousWidth=available
   if available>40 then
    local width=math.min(desired,available)
    if row.Size.X.Scale~=0 or math.abs(row.Size.X.Offset-width)>.5 then row.Size=UDim2.new(0,width,row.Size.Y.Scale,row.Size.Y.Offset) end
@@ -2041,6 +2096,32 @@ function ui.ClampRowWidth(row,container,desired)
  local connection=container:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
  row.Destroying:Connect(function()connection:Disconnect()end)
  task.defer(fit)
+end
+function ui.PrepareTab(frame,host)
+ frame.Visible=false
+ frame.Parent=host
+end
+-- Observation only: no writes to the hop session, scheduler, settings or movement state.
+function ui.MondoHopStatus(view)
+ if not view.enabled then return "Mondo Hop: đang tắt" end
+ if not view.worker then return "Mondo Hop: worker không chạy; cần xem console hoặc log D1" end
+ if view.returnNotice then return "Mondo Hop: quay về private thất bại; xem thông báo và log" end
+ if view.teleporting then return "Mondo Hop: đang yêu cầu chuyển server" end
+ if view.stopped then return "Mondo Hop: đang bật Dừng toàn bộ tác vụ" end
+ local hour=math.floor(view.now/3600)
+ local open=view.now-hour*3600<870
+ local session=view.session
+ if session and session.done and session.hour==hour then return "Mondo Hop: lượt của giờ này đã kết thúc; chờ đầu giờ sau" end
+ if not session or session.done then
+  if not open then return "Mondo Hop: ngoài khung 00:00–14:30 mỗi giờ thực tế" end
+  if view.privateId=="" then return "Mondo Hop: PrivateServerId đang trống; điều kiện khởi tạo private chưa đạt" end
+  if not view.mondo then return "Mondo Hop: chưa phát hiện Mondo còn sống để bắt đầu lượt" end
+  return "Mondo Hop: đủ điều kiện khởi tạo; đang chờ worker xử lý"
+ end
+ if session.returning or not open or session.hour~=hour then return "Mondo Hop: đang xử lý quay về server gốc" end
+ if view.retrySeconds and view.retrySeconds>0 then return "Mondo Hop: chờ thử lại sau "..view.retrySeconds.." giây" end
+ if view.mondo then return "Mondo Hop: có phiên đang chạy; đang xử lý Mondo hoặc loot" end
+ return "Mondo Hop: có phiên đang chạy; chờ chọn server public và teleport"
 end
 function ui.ShowReadableNotice(screen,title,description)
  local old=screen:FindFirstChild("Tooltip");if old then old:Destroy()end
@@ -2091,6 +2172,7 @@ function ui.ShowReadableNotice(screen,title,description)
  copy.Size=UDim2.fromOffset(120,28);copy.Position=UDim2.new(0,14,1,-38);copy.ZIndex=102;copy.Parent=panel
  copy.MouseButton1Click:Connect(function()if type(setclipboard)=="function"then pcall(setclipboard,title.."\n"..description)end end)
  return panel
+end
 end
 
 local uiParts = {}
@@ -4215,7 +4297,7 @@ do
 		end
 	end))
 
-	local title = "Atlas+ [VI3]"
+	local title = "Atlas+ [VI4]"
 	local uicolor = _G.uicolor and _G.uicolor or Color3.fromRGB(41, 74, 122)
 	local isDesktop = ScreenGui.AbsoluteSize.X >= 850 and ScreenGui.AbsoluteSize.Y >= 500
 
@@ -5062,7 +5144,8 @@ do
 		local ScrollingFrame3 = nil
 		local clone2 = nil
 		local clone3 = uiParts.tab:Clone()
-		clone3.Parent = ScrollingFrame2
+		ui.PrepareTab(ScrollingFrame2,ImageLabel)
+  clone3.Parent = ScrollingFrame2
 
 		if not (not isDesktop or not twoColumn) then
 			ScrollingFrame3 = Instance.new("ScrollingFrame")
@@ -5078,6 +5161,7 @@ do
 			ScrollingFrame3.Position = UDim2.new(0.5, 47.5, 0, 30)
 			ScrollingFrame2.Size = UDim2.new(0.5, -47.5, 1, -30)
 			ScrollingFrame3.Size = ScrollingFrame2.Size
+   ui.PrepareTab(ScrollingFrame3,ImageLabel)
 			local UIPadding4 = Instance.new("UIPadding")
 			UIPadding4.PaddingBottom = UDim.new(0, 5)
 			UIPadding4.Parent = ScrollingFrame3
@@ -5100,28 +5184,29 @@ do
 
 		clone.MouseButton1Click:Connect(function()
 			if activeTabFrame and activeTabButton ~= clone then
-				activeTabFrame.Parent = nil
+				activeTabFrame.Visible = false
 
 				if activeTabFrame2 then
-					activeTabFrame2.Parent = nil
+					activeTabFrame2.Visible = false
+     activeTabFrame2 = nil
 				end
 
 				TweenService:Create(activeTabButton, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { BackgroundTransparency = 0.96 }):Play()
 				TweenService:Create(clone, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { BackgroundTransparency = 0.85 }):Play()
-				ScrollingFrame2.Parent = ImageLabel
+				ScrollingFrame2.Visible = true
 				activeTabButton = clone
 				activeTabFrame = ScrollingFrame2
 
 				if isDesktop and twoColumn then
 					activeTabFrame2 = ScrollingFrame3
-					ScrollingFrame3.Parent = ImageLabel
+					ScrollingFrame3.Visible = true
 				end
 			end
 		end)
 
 		if v71 then
 			TweenService:Create(clone, TweenInfo.new(0.15, Enum.EasingStyle.Linear, Enum.EasingDirection.In), { BackgroundTransparency = 0.85 }):Play()
-			ScrollingFrame2.Parent = ImageLabel
+			ScrollingFrame2.Visible = true
 			activeTabButton = clone
 			activeTabFrame = ScrollingFrame2
 		end
@@ -5165,7 +5250,7 @@ do
 				L.Text = n
 				L.Size = UDim2.new(1, 0, 0, 17)
 				L.Parent = box
-    ui.ReadableRow(L,L,{minHeight=17,onLayout=function()if folderApi.Refresh then folderApi.Refresh()end end})
+    ui.ReadableRow(L,L,{minHeight=17,onLayout=function()if folderApi.RequestRefresh then folderApi.RequestRefresh()end end})
 				table.insert(fieldClones, { n, clone })
 				return L
 			end
@@ -5181,7 +5266,7 @@ do
 				clone5.Text = text
 				clone5.Parent = box
     ui.ClampRowWidth(clone5,box,width or 91)
-    ui.ReadableRow(clone5,clone5,{left=5,right=5,minHeight=22,onLayout=function()if folderApi.Refresh then folderApi.Refresh()end end})
+    ui.ReadableRow(clone5,clone5,{left=5,right=5,minHeight=22,onLayout=function()if folderApi.RequestRefresh then folderApi.RequestRefresh()end end})
 
 				clone5.MouseButton1Click:Connect(function()
 					threadCount += 1
@@ -5217,7 +5302,7 @@ do
 
     local helpText=options and options.Tooltip or ui.viHelp[text]
     switch.Position=UDim2.new(0,0,.5,-10)
-    ui.ReadableRow(title2,clone5,{left=25,right=helpText and 34 or 5,minHeight=25,onLayout=function()if folderApi.Refresh then folderApi.Refresh()end end})
+    ui.ReadableRow(title2,clone5,{left=25,right=helpText and 34 or 5,minHeight=25,onLayout=function()if folderApi.RequestRefresh then folderApi.RequestRefresh()end end})
     if helpText then
      ui.InlineHelp(clone5,box,text,helpText,function()if folderApi.Refresh then folderApi.Refresh()end end)
     end
@@ -5337,7 +5422,7 @@ do
     hint.Text=placeholderText
     hint.Size=UDim2.new(1,-12,0,17)
     hint.Parent=box
-    ui.ReadableRow(hint,hint,{minHeight=17,onLayout=function()if folderApi.Refresh then folderApi.Refresh()end end})
+    ui.ReadableRow(hint,hint,{minHeight=17,onLayout=function()if folderApi.RequestRefresh then folderApi.RequestRefresh()end end})
     textBox.PlaceholderText = ui.VI(placeholderText)
 				clone5.Parent = box
     if options and options.Size then ui.ClampRowWidth(clone5,box,options.Size)end
@@ -5402,7 +5487,7 @@ do
      box2.Size=UDim2.new(1,0,1,-h)
      local body=isOpen and math.min(160,ui.ContentHeight(objects,5)) or 0
      if clone5.Size.Y.Offset~=h+body then clone5.Size=UDim2.new(clone5.Size.X.Scale,clone5.Size.X.Offset,0,h+body)end
-    end,onLayout=function()if folderApi.Refresh then folderApi.Refresh()end end})
+    end,onLayout=function()if folderApi.RequestRefresh then folderApi.RequestRefresh()end end})
 
 				local blacklist = options and options.Blacklist
 				local multiple = options and options.Multiple
@@ -5853,7 +5938,7 @@ do
 					title2.Position = UDim2.new(0, 0, 0.5, -10)
 				end
 
-    ui.ReadableRow(title2,clone5,{left=7,right=52,minHeight=22,onLayout=function()if folderApi.Refresh then folderApi.Refresh()end end})
+    ui.ReadableRow(title2,clone5,{left=7,right=52,minHeight=22,onLayout=function()if folderApi.RequestRefresh then folderApi.RequestRefresh()end end})
 				local function v90(v91)
 					local v92 = math.clamp(v91.Position.X - clone5.AbsolutePosition.X, 0, clone5.AbsoluteSize.X)
 					local v93 = minValue + v92 / clone5.AbsoluteSize.X * (maxValue - minValue)
@@ -6171,12 +6256,12 @@ do
     local height=v76 and total or folderHeaderHeight
     if math.abs(clone4.Size.Y.Offset-height)>.5 then clone4.Size=UDim2.new(1,0,0,height)end
    end
+   local function refreshFolder()if clone4.Parent then folderApi.Refresh()end end
+   folderApi.RequestRefresh=function()ui.QueueLayout(folderApi,refreshFolder)end
    local folderLayout=box:FindFirstChildOfClass("UIListLayout")
    if folderLayout then
-    local queued=false
     local listener=folderLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-     if queued then return end
-     queued=true;task.defer(function()queued=false;if clone4.Parent then folderApi.Refresh()end end)
+     folderApi.RequestRefresh()
     end)
     clone4.Destroying:Connect(function()listener:Disconnect()end)
    end
@@ -6190,7 +6275,7 @@ do
     box.Position=UDim2.new(0,0,0,h-2)
     box.Size=UDim2.new(1,0,1,-h+2)
     clone4.Frame.Position=UDim2.new(0,0,0,h-5)
-   end,onLayout=function()folderApi.Refresh()end})
+   end,onLayout=function()folderApi.RequestRefresh()end})
    textButton.MouseButton1Click:Connect(function()
 				folderApi.Toggle(not v76)
 			end)
@@ -68713,7 +68798,6 @@ end)
 do
 	local Home = controls.home.AddFolder("Home")
 	local uptimeLabel = Home.AddLabel("Uptime: 00:00:00")
- Home.AddLabel("VI3 · Nền DarkBotGen 22/11/2026 · 5929707")
 	local serverUptimeLabel = Home.AddLabel("Server Uptime: " .. formatTime(workspace.ServerTime.Value))
 	Home.AddHorizontalAlignment()
 	local sessionHoneyLabel = Home.AddLabel("Session Honey: 0?")
@@ -68729,6 +68813,14 @@ do
 			local taskCount, connectionCount = 0, 0
 			for _ in pairs(threads.list) do taskCount += 1 end
 			for _ in pairs(connections.list) do connectionCount += 1 end
+   if ui and ui.mondoStatusLabel and cfg and state then
+    local hop=mondoHop or {}
+    local ok,privateId=pcall(function()return game.PrivateServerId end)
+    ui.mondoStatusLabel.Text=ui.MondoHopStatus({enabled=cfg.combat.mondohop,worker=threads:Get("MondoHop")~=nil,
+     stopped=state.stop,now=os.time(),privateId=ok and privateId or "",mondo=tracked and tracked.mondo~=nil,
+     session=hop.session,teleporting=hop.teleporting,returnNotice=hop.returnNotice,
+     retrySeconds=hop.retryAt and math.max(0,math.ceil(hop.retryAt-os.clock()))})
+   end
 			runtimeMemoryLabel.Text = "Client Lua heap: " .. (okHeap and string.format("%.1f MB", heapKB / 1024) or "unavailable") .. " | Tasks: " .. taskCount .. " | Connections: " .. connectionCount
 			uptimeLabel.Text = "Uptime: " .. formatTime(n)
 			serverUptimeLabel.Text = "Server Uptime: " .. formatTime(workspace.ServerTime.Value)
@@ -69622,6 +69714,8 @@ which bees and get all 3 targets if
 					Tooltip = "Interrupts conversion, gathering, and other Atlas+ tasks when Mondo is present. Does not hop servers.",
 				})
 				mondoFolder.AddSwitch("Mondo Hop", nil, "combat", "mondohop")
+    ui.mondoStatusLabel=mondoFolder.AddLabel("Mondo Hop: đang chờ cập nhật trạng thái")
+    mondoFolder.AddButton("Copy Mondo Hop Status",function()if type(setclipboard)=="function"then setclipboard(ui.mondoStatusLabel.Text)end end,150)
 				mondoFolder.AddTextBox("Private Server Invite Link",function(link)
 					cfg.combat.mondohoplink=link;saveConfig()
 				end,cfg.combat.mondohoplink,true)

@@ -10,7 +10,8 @@ source=Path(args.source).read_text()
 helper=source[source.index('-- Vietnamese display text + width-aware rows.'):source.index('\nlocal uiParts = {}')]
 pre=r'''
 local queue={}
-local task={defer=function(fn)table.insert(queue,fn)end}
+local deferredCount=0
+local task={defer=function(fn)deferredCount+=1;table.insert(queue,fn)end}
 local function flush()
  local count=0
  while #queue>0 do count+=1;assert(count<1000,"Layout refresh feedback loop");local fn=table.remove(queue,1);fn()end
@@ -37,6 +38,17 @@ local Vector2={new=function(x,y)return {X=x,Y=y}end}
 local Color3={new=function(...)return {...}end,fromRGB=function(...)return {...}end}
 local Enum={TextTruncate={None="None"},TextXAlignment={Left="Left"},TextYAlignment={Top="Top",Center="Center"},Font={GothamBold="Bold",GothamSemibold="Semibold"},ScrollingDirection={Y="Y"}}
 local methods={}
+local function ancestry(object)
+ object.AncestryChanged:Fire()
+ for _,child in ipairs(object:GetChildren())do ancestry(child)end
+end
+local function descendantsAdded(parent,object)
+ while parent do
+  parent.DescendantAdded:Fire(object)
+  for _,child in ipairs(object:GetDescendants())do parent.DescendantAdded:Fire(child)end
+  parent=parent.Parent
+ end
+end
 local function absolute(o)
  local size=o.Size;local parent=o.Parent
  local px,py=parent and parent.AbsoluteSize.X or 0,parent and parent.AbsoluteSize.Y or 0
@@ -52,13 +64,18 @@ local Instance={}
 function Instance.new(class)
  local data={ClassName=class,Name=class,Visible=true,Size=UDim2.new(0,100,0,20),Position=UDim2.new(0,0,0,0),AbsoluteSize={X=100,Y=20},ZIndex=1,Text="",TextSize=13,Font="Semibold",TextColor3={1,1,1},AncestryChanged=signal(),Destroying=signal(),MouseButton1Click=signal(),DescendantAdded=signal()}
  local o={data=data,signals={},children={}}
- return setmetatable(o,{__index=function(self,k)return methods[k]or data[k]end,__newindex=function(self,k,v)
+ data.MouseEnter=signal();data.MouseLeave=signal()
+ return setmetatable(o,{__index=function(self,k)
+  if methods[k]or data[k]~=nil then return methods[k]or data[k]end
+  for _,child in ipairs(self.children)do if child.Name==k then return child end end
+ end,__newindex=function(self,k,v)
   local old=data[k];if old==v then return end
   if k=="Parent"then
    if old then for i,child in ipairs(old.children)do if child==self then table.remove(old.children,i);break end end end
    data[k]=v
    if v then table.insert(v.children,self)end
-   absolute(self);data.AncestryChanged:Fire()
+   absolute(self);ancestry(self)
+   if v then descendantsAdded(v,self)end
   else data[k]=v end
   if k=="Size"then absolute(self)end
   local sig=self.signals[k];if sig then sig:Fire()end
@@ -68,10 +85,20 @@ function methods:IsA(class)return self.ClassName==class or class=="GuiObject" an
 function methods:GetPropertyChangedSignal(k)if not self.signals[k]then self.signals[k]=signal()end;return self.signals[k]end
 function methods:GetChildren()return table.clone(self.children)end
 function methods:GetDescendants()local a={};for _,x in ipairs(self.children)do table.insert(a,x);for _,y in ipairs(x:GetDescendants())do table.insert(a,y)end end;return a end
+function methods:Clone()
+ local clone=Instance.new(self.ClassName)
+ for k,v in pairs(self.data)do
+  if k~="Parent"and k~="ClassName"and not(type(v)=="table"and v.listeners)then clone[k]=v end
+ end
+ for _,child in ipairs(self:GetChildren())do child:Clone().Parent=clone end
+ return clone
+end
 function methods:FindFirstChild(name)for _,x in ipairs(self.children)do if x.Name==name then return x end end end
 function methods:Destroy()self.Destroying:Fire();for _,x in ipairs(self:GetChildren())do x:Destroy()end;self.Parent=nil end
 local service={}
+local measureCount=0
 function service:GetTextSize(text,size,font,bounds)
+ measureCount+=1
  local lines,width=0,0
  for line in string.gmatch(text.."\n","(.-)\n")do
   local measured=(utf8.len(line)or #line)*size*.56
@@ -148,9 +175,40 @@ for _,c in ipairs(popup:GetChildren())do if c:IsA("TextButton")and c.Text=="Ché
 check("Full descriptions can be copied",copied and string.find(copied,"Mô tả dài",1,true)~=nil)
 label:Destroy();flush()
 check("Destroyed rows release their layout bindings",ui.readableRows[label]==nil)
+local same=makeLabel("Stable row",box);local layouts=0
+local stable=ui.ReadableRow(same,same,{onLayout=function()layouts+=1 end});flush()
+local beforeMeasure,beforeLayouts=measureCount,layouts
+for _=1,20 do stable.Refresh();flush()end
+check("Repeated identical refresh does not measure or scan folders",measureCount==beforeMeasure and layouts==beforeLayouts)
+same.TextColor3=Color3.fromRGB(100,120,140);flush()
+check("Colour change updates immediately without text measurement",stable.visual.TextColor3==same.TextColor3 and measureCount==beforeMeasure)
+same.AncestryChanged:Fire();same:GetPropertyChangedSignal("AbsoluteSize"):Fire();flush()
+check("Unchanged width and ancestry do not schedule text measurement",measureCount==beforeMeasure)
+local copies=0;local owner={}
+for _=1,100 do ui.QueueLayout(owner,function()copies+=1 end)end
+flush();check("A burst of 100 folder refresh requests runs once",copies==1)
+local firstHeight=ui.TextHeight("Shared measurement",200,"Semibold",13)
+local saved=measureCount;ui.TextHeight("Shared measurement",200,"Semibold",13)
+check("Shared font measurements are cached",measureCount==saved)
+local view={enabled=true,worker=true,stopped=false,now=3601,privateId="private",mondo=true}
+check("Hop status distinguishes an empty private ID",string.find(ui.MondoHopStatus({enabled=true,worker=true,now=3601,privateId="",mondo=true}),"PrivateServerId",1,true)~=nil)
+view.mondo=false;check("Hop status distinguishes Mondo not detected",string.find(ui.MondoHopStatus(view),"chưa phát hiện",1,true)~=nil)
+view.now=4600;check("Hop status distinguishes the time window",string.find(ui.MondoHopStatus(view),"ngoài khung",1,true)~=nil)
+view.now=3601;view.session={hour=1,done=true}
+check("Hop status distinguishes a completed hourly session",string.find(ui.MondoHopStatus(view),"đã kết thúc",1,true)~=nil)
+view.session={hour=1,done=false};view.retrySeconds=9
+local untouched=view.session.done
+check("Hop status reports retries without changing the session",string.find(ui.MondoHopStatus(view),"9 giây",1,true)~=nil and view.session.done==untouched)
 print("UI_CHECKS_PASSED",#passed)
 '''
-path=Path(tempfile.gettempdir())/'atlas_vi2_ui_regression.luau';path.write_text(pre+helper+body)
+# Exercise the exact navigation function from the source, without constructing its folders.
+a=source.index('\tui.AddTab = function(');b=source.index('\n\t\ttabApi.AddFolder = function(',a)
+navigation=source[a:b]+'\n return tabApi\nend\n'
+nav_setup='\nEnum.AutomaticSize={Y="Y"};Enum.ScrollBarInset={None="None"}\nEnum.EasingStyle={Linear="Linear"};Enum.EasingDirection={In="In"}\nlocal screen=Instance.new("ScreenGui");screen.Size=UDim2.fromOffset(900,600)\nlocal ImageLabel=Instance.new("Frame");ImageLabel.Size=UDim2.fromOffset(750,400);ImageLabel.Parent=screen\nlocal ScrollingFrame=Instance.new("ScrollingFrame");ScrollingFrame.Size=UDim2.fromOffset(90,400);ScrollingFrame.Parent=ImageLabel\nlocal isDesktop=true\nlocal activeTabButton,activeTabFrame,activeTabFrame2\nlocal TweenService={Create=function()return {Play=function()end}end}\nlocal TweenInfo={new=function()return {}end}\nlocal uiParts={}\nuiParts.tabbutton=Instance.new("TextButton");uiParts.tabbutton.Size=UDim2.fromOffset(90,23)\nlocal icon=Instance.new("ImageLabel");icon.Name="TabIcon";icon.Size=UDim2.fromOffset(12,12);icon.Parent=uiParts.tabbutton\nuiParts.tab=Instance.new("Frame");uiParts.tab.Size=UDim2.new(1,-12,1,0)\nui.ObserveReadableRows(screen)\n'
+nav_body='\nui.AddTab("A","",false,true);ui.AddTab("B","",true,false);ui.AddTab("C","",false,false)\nfor _,name in ipairs({"A","B","C"})do\n for i=1,30 do\n  local label=Instance.new("TextLabel");label.Text="Một mô tả cần xuống hàng cho mục "..name..i\n  label.Size=UDim2.new(1,-12,0,17);label.Parent=uiParts[name]\n  ui.ReadableRow(label,label,{minHeight=17})\n end\nend\nflush()\nlocal buttons={}\nfor _,button in ipairs(ScrollingFrame:GetChildren())do if button:IsA("TextButton")then buttons[string.gsub(button.Text,"^ +","")]=button end end\nfor _,name in ipairs({"B","C","A"})do buttons[name].MouseButton1Click:Fire();flush()end\nlocal nativeBefore,defersBefore=measureCount,deferredCount\nlocal treeEvents=0\nscreen.DescendantAdded:Connect(function()treeEvents+=1 end)\nfor _=1,10 do for _,name in ipairs({"B","C","A"})do buttons[name].MouseButton1Click:Fire();flush()end end\nlocal warmCalls=measureCount-nativeBefore\nlocal warmDefers=deferredCount-defersBefore\ncheck("Thirty warm switches do not remeasure text or enqueue layout",warmCalls==0 and warmDefers==0)\ncheck("Tab switches do not reparent GUI descendants",treeEvents==0)\ncheck("Leaving a two-column tab hides both columns",not uiParts.B.Visible and not uiParts.B2.Visible and uiParts.A.Visible)\n'
+assert 'Nền DarkBotGen'not in source
+body=body.replace('print("UI_CHECKS_PASSED",#passed)','')
+path=Path(tempfile.gettempdir())/'atlas_vi4_ui_regression.luau';path.write_text(pre+helper+body+nav_setup+navigation+nav_body+'\nprint("UI_CHECKS_PASSED",#passed)\n')
 r=subprocess.run([args.luau,str(path)],capture_output=True,text=True)
 print(r.stdout+r.stderr)
 if r.returncode:raise SystemExit(r.returncode)

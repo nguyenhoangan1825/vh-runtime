@@ -1,35 +1,11 @@
 {
   "upstream_commit": "59297071a022532b9a5556f7aa65595dcf9073c0",
-  "upstream_blob": "671d3526d275aff86f29b5bae9d4c8333a027cef",
   "whole_source_reversed_bytes_match": true,
   "custom_resume_fix": false,
+  "mondo_status_observation_only": true,
   "blocks": [
     {
-      "block": "Mondo Resume",
-      "identical": true,
-      "sha256": "f5a0a4d28e6644b1fd282b58f742622f9fcefbd5f56641c884ca1b4fe7b24c15"
-    },
-    {
-      "block": "Stop Everything",
-      "identical": true,
-      "sha256": "8d5570554d68d0fffdadb529ac24bbefe3c70b1f41773edb27c7cf198b3a661b"
-    },
-    {
-      "block": "Walk Speed",
-      "identical": true,
-      "sha256": "8e52bc654e7fd67e560f5cd9fb7c7e05ed350f8344ecaa7b0c8b24fd153337ca"
-    },
-    {
-      "block": "Puffchase",
-      "identical": true,
-      "sha256": "bef1af8ea0327a710ed8d149256d0df98b5d889a390cb84126b1671e12a85a65"
-    },
-    {
       "block": "showerController:ResumeOthers",
-      "identical": true
-    },
-    {
-      "block": "mondoHop:TakeMovement",
       "identical": true
     },
     {
@@ -39,15 +15,6 @@
     {
       "block": "mondoHop:Start",
       "identical": true
-    },
-    {
-      "block": "mondoHop:Teleport",
-      "identical": true
-    },
-    {
-      "block": "Autofarm loop",
-      "identical": true,
-      "sha256": "5c4deeed93de082d3b81c1d24de87a6bfae0c50f7ad4be9250560416688f58cd"
     }
   ]
 }

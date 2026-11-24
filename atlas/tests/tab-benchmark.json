@@ -1,0 +1,19 @@
+{
+  "scope": "Mocked GUI, exact production tab-switch function and readable-row helpers; counts are not real Roblox frame times.",
+  "results": [
+    {
+      "build": "owned_vi3",
+      "switches": 30,
+      "native_measure_calls": 900,
+      "deferred_callbacks": 3720,
+      "descendant_added_events": 1920
+    },
+    {
+      "build": "owned_vi4",
+      "switches": 30,
+      "native_measure_calls": 0,
+      "deferred_callbacks": 0,
+      "descendant_added_events": 0
+    }
+  ]
+}
