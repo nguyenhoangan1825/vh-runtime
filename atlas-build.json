@@ -1,11 +1,11 @@
 {
-  "ui": "VI3",
+  "ui": "VI4",
   "upstream_commit": "59297071a022532b9a5556f7aa65595dcf9073c0",
   "custom_resume_fix": false,
-  "source_commit": "7fc86d29523cf5af89073b186d13d2c0b1242531",
-  "source_sha256": "1abdfc58004d2b3bdc34784da7a7b354e06ae0d91959f0a1b3975829b38857ff",
-  "source_bytes": 2713872,
-  "source_adler32": 1219730727,
-  "debug_sha256": "0ea74e922e35917bbf81c45bd6eb7c67212b5823447989ecf5cef05cd5b036b8",
-  "debug_adler32": 2274092404
+  "source_commit": "8b36bf692272f16b0628b9c78449149ccbb355ba",
+  "source_sha256": "4d297d8274814ebb5b4ef45702cadf98aacc020491121a0e6742e8c0eddf3444",
+  "source_bytes": 2718736,
+  "source_adler32": 721991047,
+  "debug_sha256": "892046b41257cb9b6d487a7370c24e1bf749f86aa501f59f4ea40d1f8192f3cf",
+  "debug_adler32": 1863843286
 }
