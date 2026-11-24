@@ -1,39 +1,48 @@
-# Atlas trong repo của Hoàng Ân
+# Atlas VI3 trong repo của Hoàng Ân
 
-`source.lua` là toàn bộ source Lua có thể đọc và sửa, không phải loader chuyển tiếp. Nền code lấy từ DarkBotGen/atlasbss tại commit `88492a18a102cdeadae279c5c2ac363816cd1b91`, sau đó áp dụng các bản vá Resume và giao diện VI2. Đây là bản Atlas+ bên thứ ba đã chỉnh sửa, chưa xác minh tương đương Atlas 1.2 chính chủ. Thông tin nguồn được giữ để ghi công; launcher không tải mã chính từ repo DarkBotGen.
+Nền: **DarkBotGen/atlasbss, atlasbss.lua, commit 59297071a022532b9a5556f7aa65595dcf9073c0**, bản mới nhất kiểm tra ngày 24/11/2026. Commit này ở ngày 22/11/2026. Đây là Atlas+ bên thứ ba, chưa xác minh tương đương Atlas 1.2 chính chủ.
 
-Nguồn tham khảo: https://github.com/DarkBotGen/atlasbss/tree/88492a18a102cdeadae279c5c2ac363816cd1b91
+Nguồn đối chiếu: https://github.com/DarkBotGen/atlasbss/blob/59297071a022532b9a5556f7aa65595dcf9073c0/atlasbss.lua
 
-## Giao diện VI2
+## Phạm vi bản VI3
 
-Sửa lỗi chữ nằm sát phía trên slider/nút tick: chữ hiển thị dùng cùng tâm dọc với giá trị số và nút tick. Tên tab giữ một dòng (cỡ chữ vừa chiều rộng), tránh Webhook bị tách chữ. Mô tả dài vẫn giữ cỡ chữ và xuống hàng.
+- Dựng lại trực tiếp từ nền trên; không dùng source VI2 làm nền.
+- Giữ nguyên logic game của upstream: Stop Everything, Shower Resume, Mondo Resume, Autofarm, di chuyển, Walk Speed, RBC, Puffshroom và Royal Jelly.
+- Bỏ toàn bộ vá Resume cũ của bản thử. Không mang bản vá khởi động/chờ loading cũ sang.
+- Chỉ bổ sung giao diện: tiếng Việt cho mô tả, trợ giúp và các tên tùy chọn đã chọn; giữ tên bee, vật phẩm, skill, bãi và các giá trị dropdown của game.
+- Chữ căn giữa ô, dòng dài tự xuống hàng và giãn chiều cao; tab Webhook giữ một dòng. Slider chừa vùng riêng cho giá trị số.
+- Nút `?` mở mô tả ngay dưới tùy chọn, không dùng popup góc màn hình cho trợ giúp.
+- Các mục Puffshroom mới có mô tả tiếng Việt. Mondo Hop được ghi rõ phải bắt đầu từ private server. Hiển thị vùng có người là 4 phần của bãi đang xem và cần bật xem vùng farm.
+- Chỉ đổi tên/thông tin hiển thị; giữ nguyên config key và callback của chức năng game.
 
-`Idle Field Loop` được ghi rõ là chạy lặp theo tuyến quanh bãi/phần bãi đã chọn. Chế độ chỉ Smiley/Combo được giải thích là bỏ qua cả tác vụ và về hive chuyển phấn thành mật. Stump chỉ chạy số 8 ở phần bãi được chọn; cả bãi dùng đường oval. Tăng Density chỉ đổi khối lượng vật lý; 140 PMS là đặt WalkSpeed = 140 trong lúc chạy tuyến.
+Để giữ thiết lập hiện có, các đường dẫn config dùng `atlas-test/` và tiền tố `atlas-test-`. Reload config dùng lại cùng source đã tải từ repo này. Đây là hai thay đổi tích hợp với bản riêng; không phải vá thuật toán farm.
 
-Kiểm tra bố cục giả lập (không thay thế kiểm tra trực tiếp trong Roblox): `python atlas/tests/test_ui.py --source atlas/source.lua --luau <đường_dẫn_luau>`.
-
-- Mô tả và tooltip được Việt hóa theo thuật ngữ BSS, giữ tên vật phẩm/skill quen thuộc.
-- Các dòng mô tả, nút tick, slider, dropdown, nút bấm và tiêu đề tự xuống hàng theo chiều rộng thực tế.
-- Nút `?` mở/đóng giải thích ngay dưới tùy chọn. Không dùng toast góc dưới cho phần trợ giúp này.
-- Thông báo hệ thống có khung giữa màn hình, cuộn được và đóng thủ công.
-- Chỉ sửa phần hiển thị. Key config, giá trị dropdown và callback của các chức năng game giữ nguyên.
-- Không áp dụng bản sửa hành vi A2 đang thử nghiệm. Chẩn đoán lỗi Mondo/farm đứng vẫn dựa trên log thực tế.
+`source.lua` là toàn bộ mã đọc được. Launcher tải snapshot cố định từ chính repo nguyenhoangan1825/vh-runtime, kiểm tra dung lượng và checksum. Không tải mã chính/reload từ DarkBotGen. Asset/API kế thừa được giữ nguyên; tên URL không xác minh ai vận hành dịch vụ.
 
 ## Hai launcher
 
-- `../atlas.lua`: bản thường.
-- `../atlas-debug.lua`: cùng source, cộng log D1 và nút chép báo cáo khi bị đứng.
+- `../atlas.lua`: bản VI3 thường, không có bản vá Resume cũ và không chèn D1.
+- `../atlas-debug.lua`: cùng nền VI3, chỉ thêm log quan sát D1 và nút Chép log khi bị đứng. Không thay cách Stop/Resume hay tự khởi động lại tác vụ.
 
-Cả hai tải `atlas/source.lua` tại một commit cố định của chính repo này, có kiểm tra dung lượng và checksum trước khi chạy. Reload config dùng lại mã đã tải trong phiên. Config cũ của bản thử vẫn ở `atlas-test/`.
+Chạy lại từ một phiên Roblox mới để không còn tác vụ của bản VI2 trong phiên.
 
-Các asset/API kế thừa từ Atlas được giữ nguyên. Các địa chỉ đó không tự chứng minh ai hiện vận hành dịch vụ. Source của game Roblox, dịch vụ bên ngoài và ảnh/dữ liệu tải thêm không nằm trong repo này.
+## Kiểm tra
 
-## Tự chỉnh sửa và cập nhật launcher
+- Compile Luau source thường, source có log và hai launcher.
+- Kiểm tra giả lập căn chữ, xuống dòng, đổi chiều rộng, trợ giúp nội dòng và tab Webhook.
+- Đảo ngược toàn bộ thay đổi UI/đường dẫn/reload để khôi phục đúng từng byte source upstream.
+- Đối chiếu riêng các khối Stop/Resume, Autofarm, WalkSpeed và Mondo với upstream.
+- Kiểm tra launcher về checksum, lỗi tải/compile/runtime và reload.
 
-1. Clone/download repo, sửa `atlas/source.lua` trên máy.
-2. Kiểm tra cú pháp nếu có Luau compiler, rồi commit và push source vào repo.
-3. Lấy SHA đầy đủ của commit vừa chứa source.
-4. Chạy Python 3: `python atlas/build_loaders.py <SOURCE_COMMIT_SHA>` từ thư mục gốc repo.
-5. Commit/push `atlas.lua`, `atlas-debug.lua` và `atlas-build.json` được tạo ra. Launcher lúc này trỏ đúng snapshot source mới.
+Các kiểm tra trên không thực thi Atlas trong Roblox; chưa xác nhận độ ổn định khi treo lâu.
 
-Builder không tải code từ bên ngoài. Nếu các điểm chèn log D1 không còn khớp sau khi sửa source, nó sẽ dừng để kiểm tra lại `diagnostic-patches.json`. Không tự nhận thay đổi từ upstream.
+Kiểm tra giao diện: `python atlas/tests/test_ui.py --source atlas/source.lua --luau <đường_dẫn_luau>`.
+
+## Tự sửa source và build
+
+1. Sửa `atlas/source.lua`, kiểm tra cú pháp rồi commit/push source.
+2. Lấy SHA đầy đủ của commit chứa source.
+3. Chạy `python atlas/build_loaders.py <SOURCE_COMMIT_SHA>` từ thư mục gốc repo.
+4. Commit/push `atlas.lua`, `atlas-debug.lua`, `atlas-build.json` được tạo ra.
+
+Builder không tải code ngoài. Nếu điểm chèn D1 không còn khớp, builder dừng để kiểm tra `diagnostic-patches.json`. Lịch sử git giữ lại bản VI2 để đối chiếu. `v.lua` (VicHop) không thuộc lần cập nhật này.

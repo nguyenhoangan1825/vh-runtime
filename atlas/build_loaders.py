@@ -26,10 +26,11 @@ def main():
     url='https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/'+args.source_commit+'/atlas/source.lua'
     for name,body,instructions in [('atlas.lua',source,''),('atlas-debug.lua',debug,'\n'.join(' source=replaceLiteral(source,'+lua_long(a)+','+lua_long(b)+',1)'for a,b in patches))]:
         text=template
-        values={'@@SOURCE_URL@@':json.dumps(url),'@@SOURCE_BYTES@@':str(len(original)),'@@SOURCE_ADLER@@':str(zlib.adler32(original)),'@@PATCHED_ADLER@@':str(zlib.adler32(body.encode())),'@@PATCHES@@':instructions,'@@TAG@@':json.dumps('[Atlas VI2 D1] 'if name=='atlas-debug.lua'else '[Atlas VI2] ')}
+        values={'@@SOURCE_URL@@':json.dumps(url),'@@SOURCE_BYTES@@':str(len(original)),'@@SOURCE_ADLER@@':str(zlib.adler32(original)),'@@PATCHED_ADLER@@':str(zlib.adler32(body.encode())),'@@PATCHES@@':instructions,'@@TAG@@':json.dumps('[Atlas VI3 D1] 'if name=='atlas-debug.lua'else '[Atlas VI3] ')}
         for key,value in values.items():text=text.replace(key,value)
         (target/name).write_text(text,encoding='utf8',newline='\n')
         print(name,'bytes',len(text.encode()),'source',args.source_commit)
-    manifest={'source_commit':args.source_commit,'source_sha256':hashlib.sha256(original).hexdigest(),'source_bytes':len(original),'source_adler32':zlib.adler32(original),'debug_sha256':hashlib.sha256(debug.encode()).hexdigest(),'debug_adler32':zlib.adler32(debug.encode())}
+    metadata=json.loads((P/'metadata.json').read_text())
+    manifest={'ui':metadata['ui'],'upstream_commit':metadata['upstream_commit'],'custom_resume_fix':False,'source_commit':args.source_commit,'source_sha256':hashlib.sha256(original).hexdigest(),'source_bytes':len(original),'source_adler32':zlib.adler32(original),'debug_sha256':hashlib.sha256(debug.encode()).hexdigest(),'debug_adler32':zlib.adler32(debug.encode())}
     (target/'atlas-build.json').write_text(json.dumps(manifest,indent=2)+'\n')
 if __name__=='__main__':main()

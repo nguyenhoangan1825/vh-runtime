@@ -24,90 +24,9 @@ local VirtualUser = getService("VirtualUser")
 local RunService = getService("RunService")
 local Lighting = getService("Lighting")
 
-do
- local deadline=os.clock()+90
- while true do
-  local playerGui=localPlayer:FindFirstChild("PlayerGui")
-  local loading=playerGui and playerGui:FindFirstChild("LoadingScreenGui")
-  local message=loading and loading:FindFirstChild("LoadingMessage")
-  if playerGui and (not loading or not message or not message.Visible) then break end
-  if os.clock()>deadline then error("Atlas test: loading screen timeout (90s).",0) end
-  RunService.Heartbeat:Wait()
- end
+while not localPlayer.PlayerGui:FindFirstChild("LoadingScreenGui") or localPlayer.PlayerGui.LoadingScreenGui.LoadingMessage.Visible do
+	RunService.Heartbeat:Wait()
 end
-
-local userIdFlags = {
-	[3049989742] = true,
-	[2011594783] = true,
-	[5643986803] = true,
-	[4875308344] = true,
-	[829528265] = true,
-	[795072652] = true,
-	[864245956] = true,
-	[868450011] = true,
-	[7885903578] = true,
-	[1514703948] = true,
-	[1372471304] = true,
-	[9323006085] = false,
-	[4236684798] = false,
-	[3170736063] = false,
-	[6139334907] = false,
-	[8990334419] = false,
-	[5061301137] = false,
-	[1594706926] = false,
-	[910593999] = false,
-	[5219716515] = true,
-	[7275384853] = false,
-	[7275387965] = false,
-	[1302138298] = false,
-	[9994685635] = false,
-	[9303608690] = false,
-	[2882988685] = false,
-	[1488718473] = false,
-	[10232524096] = false,
-	[8083296460] = false,
-	[9626638375] = false,
-	[9611135191] = false,
-	[1517347550] = false,
-	[666001566] = false,
-	[529700322] = false,
-	[2976803432] = false,
-	[5002120900] = true,
-	[1602565636] = true,
-	[9534071363] = false,
-	[5657510298] = false,
-	[2411460273] = false,
-	[2988382293] = false,
-	[1115351441] = false,
-	[1553660877] = true,
-	[2429240845] = true,
-	[2560057194] = true,
-	[844665753] = true,
-	[8358076996] = true,
-	[1101749476] = true,
-	[1286119322] = true,
-	[9071846031] = true,
-	[994324675] = true,
-	[674518263] = true,
-	[8509392094] = true,
-	[10492045434] = true,
-	[1980878381] = true,
-	[10186801292] = true,
-	[8264524040] = true,
-	[2001801246] = true,
-	[3482767494] = true,
-	[3329421453] = true,
-	[3912670263] = true,
-	[10467057934] = true,
-	[581077999] = true,
-	[9567573721] = true,
-	[115729619] = true,
-	[1047362715] = true,
-	[2529360366] = true,
-	[10475314436] = false,
-	[8241544048] = false,
-	[8549774025] = false,
-}
 
 local function getUrl(fileName, v5)
 	if fileName == "script.lua" then
@@ -612,8 +531,6 @@ local cfg = {
 	},
 	puffshrooms = {
 		enabled = false,
-		zonefield = "Off",
-		outsiderarity = "Legendary+",
 		blacklistedfields = false,
 		highlvlpriority = false,
 		priorityfields = false,
@@ -622,6 +539,14 @@ local cfg = {
 		mintime = 30,
 		min = 1,
 		max = 15,
+		chase = false,
+		chasefield = "Rose Field",
+		chaseswap = 15,
+		chasemin = 1,
+		chasestraw = 5,
+		chaseleave = 10,
+		override = false,
+		overriderarity = false,
 	},
 	rbc = {
 		boostedfields = true,
@@ -1803,14 +1728,14 @@ ui.viDictionary = {
  ["Enabled features + field / hazard checks apply"]="Chỉ dùng tính năng đang bật và vẫn kiểm tra giới hạn bãi, vùng nguy hiểm.",
  ["Custom off = petals first, then script order"]="Tắt tùy chỉnh: ưu tiên Petal trước, sau đó theo thứ tự mặc định của script.",
  ["Safeshower overrides all other activities during your shower"]="Khi nhặt Star Shower của bạn, script tạm nhường các việc khác cho đến khi xong.",
- ["Field coverage: green = player inside; red = empty. Labels show current occupants."]="Vùng xanh: có người đứng trong vùng. Vùng đỏ: đang trống. Nhãn hiển thị người hiện ở trong đó.",
+ ["Field coverage: green = player inside; red = empty. Labels show current occupants."]="Bật Hiện vùng farm để xem 4 phần của bãi hiện tại. Xanh: có người; đỏ: trống. Tên người hiện trên từng phần.",
  ["Stump route: continuous infinity; each side and middle once per repetition."]="Ở Stump: chọn một phần bãi thì chạy tuyến số 8, đi qua hai bên và giữa; chạy cả bãi thì theo đường oval.",
  ["Strict collection bounds use the selected Farm Field and quadrant. Scheduled travel still runs."]="Giới hạn nhặt đồ theo bãi và ô đã chọn. Script vẫn được rời bãi để làm các tác vụ khác.",
  ["Preview works while farming is off. Stump visuals follow its trimmed idle footprint."]="Có thể xem vùng farm ngay cả khi tắt Autofarm. Vùng xem trước ở Stump bám theo đường chạy thực tế.",
  ["Auto Sprinkler stacks lower tiers at the field center while jumping; Supreme places once."]="Auto Sprinkler đặt các vòi tưới cấp thấp ở tâm bãi khi nhảy. Supreme Saturator chỉ đặt một lần.",
  ["This will not work if hide other players is enabled"]="Không dùng được nếu đang bật Hide Other Players.",
  ["Private Mondo first, then public hops; loot 30s. Return at :14:30."]="Đánh Mondo ở private trước, rồi hop server công khai. Nhặt loot 30 giây; đến phút 14:30 của mỗi giờ thì quay về.",
- ["Start in your private server. Autoexec required. Invite link is a return fallback."]="Bắt đầu trong private server và bật autoexec. Link mời là phương án dự phòng nếu không tự quay về được.",
+ ["Start in your private server. Autoexec required. Invite link is a return fallback."]="Phải bắt đầu ở private server khi Mondo còn sống, trong 14 phút 30 giây đầu mỗi giờ thực tế. Cần autoexec để chạy tiếp sau khi hop. Link mời chỉ lưu để chép và tự vào lại nếu cần.",
  ["When unshielded, avoids Mondo by 45 studs instead of holding risky marks"]="Khi không có khiên, giữ cách Mondo 45 studs; không cố đứng giữ mark ở chỗ nguy hiểm.",
  ["Approaches for up to 8 seconds, then farms tokens inside available marks"]="Áp sát tối đa 8 giây, sau đó nhặt token trong các mark đang có.",
  ["Mind Hack activates automatically through Digital Bee"]="Mind Hack do Digital Bee tự kích hoạt.",
@@ -1848,7 +1773,7 @@ ui.viDictionary = {
  ["Predict moving RBC hazards when internal data is available. Live mob models remain the fallback; no LocalFX function hook is required."]="Dự đoán hướng di chuyển của vật cản/quái trong RBC khi có dữ liệu. Nếu thiếu dữ liệu, dùng vị trí quái đang hiện trong game; không cần hook LocalFX.",
  ["This hides names at hives (client side)"]="Ẩn tên ở hive trên màn hình của bạn; người khác vẫn thấy bình thường.",
  ["You need to have atlas in your\nautoexec folder"]="Cần đặt launcher Atlas vào thư mục autoexec để tự chạy lại sau khi rejoin.",
- ["Show All Field Coverage"]="Hiện vùng có người trong mọi bãi",
+ ["Show All Field Coverage"]="Hiện người trong 4 phần bãi đang xem",
  ["Ignore Outside Quadrant"]="Chỉ nhặt trong phần bãi đã chọn",
  ["Idle Field Loop"]="Chạy lặp theo tuyến (Idle Loop)",
  ["Field Idle: Smileys & Combos Only"]="Chỉ ngắt tuyến để ăn Smiley / đón Combo",
@@ -1873,7 +1798,54 @@ ui.viDictionary = {
  ["Minimum Time (seconds)"]="Thời gian còn lại tối thiểu (giây)",
  ["Farm Puffshrooms"]="Đánh Puffshroom",
  ["High Level Priority"]="Ưu tiên Puffshroom level cao",
- ["Maintain 100x Blessing"]="Duy trì Puffshroom Blessing x100"
+ ["Maintain 100x Blessing"]="Duy trì Puffshroom Blessing x100",
+ ["Chases puffs anywhere until one hits the level in the zone"]="Đuổi Puffshroom ở các bãi được phép. Khi có Puff đủ level trong khu 15 bee hoặc Strawberry, chuyển sang tập trung khu đó. Level chuyển chế độ do mục bên trên quyết định.",
+ ["Ticked rarities: every account drops everything for it"]="Các độ hiếm được tick sẽ được ưu tiên đặc biệt: acc bỏ tác vụ hiện tại để đánh Puff đó. Vẫn cần bật Autofarm và Farm Puffshrooms; không giành quyền khi Mondo, Combo hoặc Shower đang xử lý.",
+ ["Accounts finish puffs in their field before moving"]="Ưu tiên đánh Puff trong bãi đang đứng rồi mới tìm sang bãi khác. Chế độ ưu tiên Puff hiếm có thể ngắt việc này.",
+ ["Chase: alts on the same PC split into their own fields"]="Các acc cùng máy, cùng server và dùng chung thư mục executor sẽ chia bãi để đuổi Puff, tránh dồn hết vào một bãi.",
+ ["Chase to 15 Bee Zone"]="Đuổi Puff / tập trung khu 15 bee",
+ ["Preferred Chase Field"]="Bãi ưu tiên khi vào khu 15 bee",
+ ["Swap Field After (seconds)"]="Thời gian chờ trước khi đổi bãi (giây)",
+ ["Zone Mode From Level"]="Level Puff để tập trung khu 15 bee",
+ ["Leave Zone After (seconds)"]="Rời khu khi hết Puff sau (giây)",
+ ["Use Strawberry After (seconds)"]="Cho phép sang Strawberry sau (giây)",
+ ["Ignore Everything And Farm Puff"]="Ngắt tác vụ để ưu tiên Puff hiếm",
+ ["Ignore Everything For"]="Độ hiếm cần ưu tiên đặc biệt",
+ ["Select Position"]="Chọn ô bee cần roll",
+ ["Auto Royal Jelly"]="Tự roll Royal Jelly",
+ ["Stop On Any Gifted"]="Dừng khi ra bất kỳ bee Gifted",
+ ["Stop On Bee Rarity"]="Dừng theo độ hiếm bee",
+ ["Auto Gifted Basic Bee"]="Tự kiếm Basic Bee Gifted",
+ ["Auto Mutations"]="Tự roll Mutation",
+ ["Feed Neonberry"]="Cho ăn Neonberry",
+ ["Configure Mutations"]="Chọn chỉ số Mutation cần roll",
+ ["Bee Types"]="Loại bee mục tiêu",
+ ["Auto Kill Mondo Chick"]="Tự đánh Mondo Chick",
+ ["Mondo Takes Priority"]="Ưu tiên Mondo hơn tác vụ khác",
+ ["Mondo Hop"]="Hop server để đánh Mondo",
+ ["Private Server Invite Link"]="Link mời private server",
+ ["Copy Private Server Link"]="Chép link private server",
+ ["Collect Mondo Chick Loot"]="Nhặt loot sau khi Mondo chết",
+ ["Approach Mondo For One Hit"]="Áp sát để đánh Mondo ít nhất một hit",
+ ["Farm Tokens Inside Precise Marks"]="Nhặt token trong Precise Mark",
+ ["Defensive After Shield Expires"]="Né Mondo khi hết khiên",
+ ["Time To Kill Mondo Chick At (minutes)"]="Đánh khi Mondo còn tối đa (phút)",
+ ["Prepare To Kill Mondo Chick"]="Đến chờ trước khi Mondo xuất hiện",
+ ["Time Before Spawning (seconds)"]="Đến trước lúc xuất hiện (giây)",
+ ["Autofarm"]="Tự farm",
+ ["Auto Sprinkler"]="Tự đặt vòi tưới",
+ ["Auto Dig"]="Tự dùng dụng cụ thu phấn",
+ ["Stop Everything"]="Dừng toàn bộ tác vụ",
+ ["Enable Walk Speed"]="Bật tốc độ chạy tùy chỉnh",
+ ["Dynamic Walk Speed"]="Tốc độ chạy theo hệ số",
+ ["Walk Speed"]="Tốc độ chạy",
+ ["Tween Speed"]="Tốc độ Tween",
+ ["Farm Near Position"]="Farm theo vị trí đã chọn",
+ ["Farm Settings"]="Thiết lập farm",
+ ["Convert Settings"]="Thiết lập đổi phấn thành mật",
+ ["Minimum Rarity"]="Độ hiếm Puff thấp nhất",
+ ["Allowed Fields"]="Các bãi được phép",
+ ["Priority Fields"]="Các bãi ưu tiên"
 }
 ui.viPrefixes = {
  ["Uptime: "]="Đã chạy: ",
@@ -1886,12 +1858,24 @@ ui.viPrefixes = {
  ["Next item: "]="Món tiếp theo: ",
  ["Next hive slot: "]="Ô hive tiếp theo: ",
  ["Farm: "]="Đang làm: ",
- ["Build: "]="Bản: "
+ ["Build: "]="Bản: ",
+ ["Preferred Chase Field: "]="Bãi ưu tiên khu 15 bee: ",
+ ["Field Position: "]="Vị trí trong bãi: ",
+ ["Minimum Rarity: "]="Độ hiếm Puff thấp nhất: ",
+ ["Feed Type: "]="Vật phẩm dùng để roll: ",
+ ["Movement: "]="Cách di chuyển: "
 }
 ui.viHelp = {
  ["Idle Field Loop"]="Khi không có mục tiêu cần nhặt, nhân vật chạy lặp theo tuyến quanh bãi hoặc phần bãi đã chọn, thay vì đi tới điểm ngẫu nhiên. Vẫn có thể ngắt tuyến để nhặt đồ và làm tác vụ. Muốn chỉ ăn Smiley và đón Combo Coconut thì bật thêm tùy chọn ngay bên dưới.",
  ["Idle Pattern Density"]="Khi chạy tuyến, tăng mật độ vật lý của HumanoidRootPart lên 10 lần, tối đa 100, làm nhân vật nặng hơn. Khi dừng chạy tuyến, script trả lại thông số cũ. Tùy chọn này không tăng tốc độ hay mật độ hoa.",
- ["Idle Pattern 140 PMS"]="Đặt WalkSpeed = 140 chỉ trong lúc chạy tuyến, tương đương 140 studs/giây. Khi dừng chạy tuyến, script trả lại tốc độ trước đó nếu tốc độ chưa bị thay đổi bởi nguồn khác."
+ ["Idle Pattern 140 PMS"]="Đặt WalkSpeed = 140 chỉ trong lúc chạy tuyến, tương đương 140 studs/giây. Khi dừng chạy tuyến, script trả lại tốc độ trước đó nếu tốc độ chưa bị thay đổi bởi nguồn khác.",
+ ["Show All Field Coverage"]="Cần bật Hiện vùng farm đã chọn. Hiện 4 phần trong bãi đang xem và tên người đứng ở mỗi phần, giúp chia bãi cho nhiều acc. Tùy chọn này chỉ hiển thị, không tự chọn phần trống.",
+ ["Show Farming Area"]="Vẽ ranh giới để xem vùng farm. Bật thêm mục hiện người để xem cả 4 phần bãi; nếu tắt mục đó thì chỉ vẽ phần đã chọn ở Field Position. Không cần bật Autofarm để xem.",
+ ["Ignore Outside Quadrant"]="Chỉ nhặt mục tiêu trong góc bãi đã chọn. Cần bật Farm theo vị trí đã chọn, rồi chọn Upper Left, Upper Right, Lower Left hoặc Lower Right ở Field Position. Các tác vụ khác vẫn có thể rời bãi.",
+ ["Chase to 15 Bee Zone"]="Ban đầu đuổi Puff ở các bãi được phép. Khi Puff trong khu 15 bee hoặc Strawberry đạt level ngưỡng, chuyển sang farm khu đó và chia bãi cho các acc dùng chung thư mục. Khi khu hết Puff đủ thời gian đã đặt, quay lại đuổi Puff ở nơi khác.",
+ ["Ignore Everything And Farm Puff"]="Khi thấy Puff có độ hiếm được tick bên dưới, ưu tiên đánh nó đến khi biến mất. Không áp dụng bộ lọc bãi, level và thời gian thông thường, nhưng vẫn kiểm tra bãi đã mở và tránh bãi Coconut/Mountain Top khi boss tương ứng đang cản.",
+ ["Mondo Hop"]="Phải bắt đầu từ private server khi Mondo còn sống, trong khoảng phút 00:00 đến trước 14:30 mỗi giờ thực tế. Đánh Mondo, nhặt loot 30 giây rồi hop public; hết giờ quay về server gốc. Bật ở public khi chưa có phiên hop sẽ không khởi động. Cần autoexec sau teleport.",
+ ["Auto Royal Jelly"]="Roll một ô đã chọn bằng nút Chọn ô bee cần roll. Dừng khi ra loại bee, độ hiếm đã chọn hoặc bất kỳ Gifted nếu bật mục tương ứng. Bản nền này chưa hỗ trợ chọn nhiều ô để roll lần lượt."
 }
 ui.readableRows = setmetatable({}, {__mode="k"})
 function ui.VI(value)
@@ -3136,25 +3120,18 @@ function showerController:PauseOthers()
 end
 
 function showerController:ResumeOthers()
- -- Atlas Resume Fix 2026-11-24: keep suspended jobs until Stop is released.
- self.suspending = false
- if state then state.stopface = self.previousStopface end
- if self.shuttingDown or threads.closed or not state then
-  table.clear(self.paused)
-  return
- end
- if state.stop then return end
- local paused = self.paused
- self.paused = {}
- for id, job in pairs(paused) do
-  if id == "Autofarm" and not cfg.autofarm.enabled then continue end
-  if id == "walkspeed" and not cfg.vars.walkspeedenabled then continue end
-  if id == "autodig" and not cfg.autofarm.autodig then continue end
-  if id == "fasttween" and not cfg.detected.background then continue end
-  if not threads:Get(id) then
-   threads:Add(id, job.callback, job.delaySeconds, table.unpack(job.args,1,job.args.n))
-  end
- end
+	self.suspending = false
+	if state then state.stopface = self.previousStopface end
+	local paused = self.paused
+	self.paused = {}
+	if self.shuttingDown or threads.closed or not state or state.stop then return end
+	for id, job in pairs(paused) do
+		if id == "Autofarm" and not cfg.autofarm.enabled then continue end
+		if id == "fasttween" and not cfg.detected.background then continue end
+		if not threads:Get(id) then
+			threads:Add(id, job.callback, job.delaySeconds, table.unpack(job.args,1,job.args.n))
+		end
+	end
 end
 
 function showerController:Reset()
@@ -4238,7 +4215,7 @@ do
 		end
 	end))
 
-	local title = "Atlas+ [VI2]"
+	local title = "Atlas+ [VI3]"
 	local uicolor = _G.uicolor and _G.uicolor or Color3.fromRGB(41, 74, 122)
 	local isDesktop = ScreenGui.AbsoluteSize.X >= 850 and ScreenGui.AbsoluteSize.Y >= 500
 
@@ -6475,7 +6452,7 @@ do
 					switch2.Text = alwaysDelete and utf8.char(10003) or ""
 
 					if not itemConfig then
-						bqbuyconf[itemName] = { false, current, alwaysDelete }
+						bqbuyconf[itemName] = { false, 0, alwaysDelete }
 						itemConfig = bqbuyconf[itemName]
 					else
 						itemConfig[3] = alwaysDelete
@@ -47879,12 +47856,12 @@ Content-Disposition: form-data; name="file[0]"; filename="image.png"
 													nearestOverlap = { d = distance, v = item }
 												end
 											end
+
+											if nearestNew and nearestOverlap and nearestNew.d < nearestOverlap.d then
+												items = group
+											end
 										end
 									else
-										items = group
-									end
-
-									if not (not nearestnew or not nearestoverlap or not (nearestnew.d < nearestoverlap.d)) then
 										items = group
 									end
 								end
@@ -54766,8 +54743,8 @@ end
 					local best = nil
 					touchedMarks[mark] = os.clock() + 3
 
-					for _, candidate in pairs(tracked.precise2) do
-						if options.area and not fieldPositionPolicy:TrackedAllowed(_,candidate,options) then continue end
+					for markKey, candidate in pairs(tracked.precise2) do
+						if options.area and not fieldPositionPolicy:TrackedAllowed(markKey,candidate,options) then continue end
 						totalCount += 1
 
 						if not candidate.Touched and not touchedMarks[candidate] and not ((not options.ignorefield or getFieldAt(candidate.Position)) and not (not options.ignorefield and getFieldAt(candidate.Position) == currentField) or not (not options.avoid or not isPathClear(candidate.Position, options.avoid))) then
@@ -55374,7 +55351,7 @@ end
 			for i = 1, 4 do
 				succeeded = succeeded or pcall(function()
 					if label == "Bubble Mask" then
-						goTo(locations.BlueHQ, tool)
+						goTo(locations.BlueHQ, label)
 					elseif label == "Diamond Mask" then
 						goTo(locations.DiamondMaskShop, label)
 					elseif label == "Fire Mask" then
@@ -57606,7 +57583,7 @@ end
 						v156 = string.gsub(string.gsub(text, "%(%d+ royal jell", ""), "%(rank", "")
 						v157 = string.match(v156, "%(([^)]+)%)")
 						if not v157 then
-							logger.warn(v156, color)
+							logger.warn(v156)
 							return
 						end
 						v158 = string.gsub(v157, "s", "")
@@ -58034,7 +58011,7 @@ end
 							v156 = string.gsub(string.gsub(text, "%(%d+ royal jell", ""), "%(rank", "")
 							v157 = string.match(v156, "%(([^)]+)%)")
 							if not v157 then
-								logger.warn(v156, color)
+								logger.warn(v156)
 								return
 							end
 							v158 = string.gsub(v157, "s", "")
@@ -59364,19 +59341,361 @@ end
 	end
 end
 
+-- Puffshroom chase: farm puffs wherever they spawn, then park in the 15 Bee Zone (+ Strawberry Field)
+-- so new spawns land there. Accounts running Atlas on the same PC claim a field through a shared
+-- file so they split up instead of stacking. Random players are ignored.
+local puffChase = {
+	fields = { "Rose Field", "Pine Tree Forest", "Pumpkin Patch", "Cactus Field", "Strawberry Field" },
+	mainFields = { "Rose Field", "Pine Tree Forest", "Pumpkin Patch", "Cactus Field" },
+	lowerTier = "Strawberry Field",
+	fieldSet = {},
+	zone = false,
+	zoneSeen = 0,
+	zonePuffs = 0,
+	lastFlag = 0,
+	lastJuggle = 0,
+	overrideTarget = nil,
+	overrideRarity = nil,
+	overrideLevel = nil,
+	lastOverrideKick = 0,
+	overrideRank = { Epic = 1, Legendary = 2, Mythic = 3 },
+	lastPuffScan = 0,
+	lastZonePuff = nil,
+	claims = {},
+	lastScan = 0,
+	lastClaim = 0,
+	field = nil,
+	swapDue = false,
+	folder = "atlas-test/puffchase",
+	stale = 8,
+}
+
+for _, fieldName in ipairs(puffChase.fields) do
+	puffChase.fieldSet[fieldName] = true
+end
+
+puffChase.blessingMaxed = function()
+	return cfg.puffshrooms.maintain and buffs.PuffBlessing and buffs.PuffBlessing.Text.Text == "x100" and buffs.PuffBlessing.Percent.Size.Y.Scale > 0.3
+end
+
+-- Tell the other accounts which field we're in (throttled to once a second)
+puffChase.claim = function(fieldName)
+	puffChase.field = fieldName
+	if os.clock() - puffChase.lastClaim < 1 then
+		return
+	end
+	puffChase.lastClaim = os.clock()
+	pcall(function()
+		if not isfolder(puffChase.folder) then
+			makefolder(puffChase.folder)
+		end
+		writefile(puffChase.folder .. "/" .. localPlayer.UserId .. ".txt", fieldName .. "|" .. os.time() .. "|" .. game.JobId)
+	end)
+end
+
+-- Read the other accounts' claims (only fresh ones, from accounts in this server)
+puffChase.refresh = function()
+	if os.clock() - puffChase.lastScan < 1 then
+		return
+	end
+	puffChase.lastScan = os.clock()
+	local claims = {}
+	pcall(function()
+		if not isfolder(puffChase.folder) then
+			return
+		end
+		local Players = getService("Players")
+		for _, path in ipairs(listfiles(puffChase.folder)) do
+			local userId = tonumber(string.match(path, "(%d+)%.txt$"))
+			if userId and userId ~= localPlayer.UserId and Players:GetPlayerByUserId(userId) then
+				local ok, text = pcall(readfile, path)
+				if ok and text then
+					local fieldName, stamp, jobId = string.match(text, "^(.-)|(%d+)|(.*)$")
+					if fieldName and jobId == game.JobId and os.time() - tonumber(stamp) <= puffChase.stale then
+						claims[fieldName] = claims[fieldName] or {}
+						table.insert(claims[fieldName], userId)
+					end
+				end
+			end
+		end
+	end)
+	puffChase.claims = claims
+end
+
+-- Taken = another Atlas account claimed it. If we both claim it, the lower UserId keeps it.
+puffChase.isTaken = function(fieldName)
+	puffChase.refresh()
+	local others = puffChase.claims[fieldName]
+	if not others or #others == 0 then
+		return false
+	end
+	if puffChase.field ~= fieldName then
+		return true
+	end
+	for _, userId in ipairs(others) do
+		if userId < localPlayer.UserId then
+			return true
+		end
+	end
+	return false
+end
+
+-- Two modes:
+--   CHASE: farm puffs wherever they spawn (accounts still split by claimed field), never park in the zone.
+--   ZONE:  a puff at or above the "Zone Mode From Level" shows up in the 15 Bee Zone / Strawberry -> every
+--          account goes there, farms only zone puffs (any level) and zone sprouts, splitting the fields.
+--          Ends once the zone has had no puffs for cfg.puffshrooms.chaseleave seconds.
+-- Accounts on the same PC share ZONE mode through atlas/puffchase/zone.txt so they all switch together.
+puffChase.scan = function()
+	if os.clock() - puffChase.lastPuffScan < 0.5 then
+		return
+	end
+	puffChase.lastPuffScan = os.clock()
+	local minLevel = cfg.puffshrooms.chasemin or 1
+	local hasGood, zoneCount = false, 0
+
+	for k in pairs(tracked.puffshrooms) do
+		local top = k:FindFirstChild("Puffball Top")
+		local stem = k:FindFirstChild("Puffball Stem")
+		local attachment = top and top:FindFirstChild("Attachment")
+		local gui = attachment and attachment:FindFirstChild("Gui")
+		local nameRow = gui and gui:FindFirstChild("NameRow")
+		local label = nameRow and nameRow:FindFirstChild("TextLabel")
+
+		if label and stem and k.Parent then
+			local field = getFieldAt(stem.Position)
+			if field and puffChase.fieldSet[field.Name] and availableFields[field.Name] then
+				zoneCount += 1
+				if field.Name ~= puffChase.lowerTier then
+					puffChase.lastZonePuff = os.clock()
+				end
+				local level = tonumber(string.match(label.Text, "Lvl (%d+)")) or 1
+				if level >= minLevel then
+					hasGood = true
+				end
+			end
+		end
+	end
+	puffChase.zonePuffs = zoneCount
+
+	local flagPath = puffChase.folder .. "/zone.txt"
+	local shared = false
+	pcall(function()
+		if isfile(flagPath) then
+			local stamp, jobId = string.match(readfile(flagPath), "^(%d+)|(.*)$")
+			shared = stamp and jobId == game.JobId and os.time() - tonumber(stamp) <= 5 or false
+		end
+	end)
+
+	local wasZone = puffChase.zone
+	if hasGood or (shared and zoneCount > 0) then
+		puffChase.zone = true
+	end
+
+	if puffChase.zone then
+		if zoneCount > 0 then
+			puffChase.zoneSeen = os.clock()
+			if os.clock() - puffChase.lastFlag >= 1 then
+				puffChase.lastFlag = os.clock()
+				pcall(function()
+					if not isfolder(puffChase.folder) then
+						makefolder(puffChase.folder)
+					end
+					writefile(flagPath, os.time() .. "|" .. game.JobId)
+				end)
+			end
+		elseif os.clock() - puffChase.zoneSeen >= (cfg.puffshrooms.chaseleave or 10) then
+			puffChase.zone = false
+		end
+	end
+
+	if puffChase.zone ~= wasZone then
+		logger.log(puffChase.zone and "Puffshroom chase: ZONE mode, all accounts farming the 15 Bee Zone" or "Puffshroom chase: zone empty, back to chasing puffs everywhere")
+	end
+end
+
+puffChase.inZone = function()
+	if not cfg.puffshrooms.chase then
+		return false
+	end
+	puffChase.scan()
+	return puffChase.zone == true
+end
+puffChase.isActive = puffChase.inZone
+
+-- Is there a sprout in one of the zone fields?
+puffChase.zoneSprout = function()
+	for k in pairs(tracked.sprouts) do
+		if k.Parent then
+			local field = getFieldAt(k.Position)
+			if field and puffChase.fieldSet[field.Name] and availableFields[field.Name] then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+-- Pick the zone field to wait in: keep the current one unless it's taken, holds a low-level puff or it's
+-- time to swap; otherwise the preferred field, then the next free one. Strawberry Field is only used once
+-- the main 4 have had no farmable puff for cfg.puffshrooms.chasestraw seconds, or they're all unusable.
+puffChase.usable = function(fieldName)
+	return availableFields[fieldName] and not puffChase.isTaken(fieldName)
+end
+
+puffChase.pickField = function()
+	puffChase.scan()
+	puffChase.lastZonePuff = puffChase.lastZonePuff or os.clock()
+
+	local unlocked = {}
+	for _, fieldName in ipairs(puffChase.mainFields) do
+		if availableFields[fieldName] then
+			table.insert(unlocked, fieldName)
+		end
+	end
+
+	local mainUsable = false
+	for _, fieldName in ipairs(unlocked) do
+		if puffChase.usable(fieldName) then
+			mainUsable = true
+			break
+		end
+	end
+
+	local strawberryOk = availableFields[puffChase.lowerTier] and (not mainUsable or os.clock() - puffChase.lastZonePuff >= (cfg.puffshrooms.chasestraw or 5))
+	if strawberryOk then
+		table.insert(unlocked, puffChase.lowerTier)
+	end
+
+	if #unlocked == 0 then
+		return
+	end
+
+	local preferred = availableFields[cfg.puffshrooms.chasefield] and table.find(puffChase.mainFields, cfg.puffshrooms.chasefield) and cfg.puffshrooms.chasefield or unlocked[1]
+	local current = puffChase.field
+	if current and not table.find(unlocked, current) then
+		current = nil
+	end
+
+	if current and not puffChase.swapDue and puffChase.usable(current) then
+		return current
+	end
+
+	local order = {}
+	if current and puffChase.swapDue then
+		local startIndex = table.find(unlocked, current) or 0
+		for i = 1, #unlocked do
+			local fieldName = unlocked[(startIndex + i - 1) % #unlocked + 1]
+			if fieldName ~= current then
+				table.insert(order, fieldName)
+			end
+		end
+	else
+		table.insert(order, preferred)
+		for _, fieldName in ipairs(unlocked) do
+			if fieldName ~= preferred then
+				table.insert(order, fieldName)
+			end
+		end
+	end
+
+	for _, fieldName in ipairs(order) do
+		if puffChase.usable(fieldName) then
+			return fieldName
+		end
+	end
+
+	if current and puffChase.usable(current) then
+		return current
+	end
+	return preferred
+end
+
+puffChase.hasFreeOther = function(fieldName)
+	for _, other in ipairs(puffChase.fields) do
+		if other ~= fieldName and puffChase.usable(other) then
+			return true
+		end
+	end
+	return false
+end
+
+-- "Ignore Everything And Farm Puff": a puff of a picked rarity makes every account drop what it's doing
+-- and farm that one puff (no splitting, no field/level/time filters) until it's dead.
+puffChase.isOverrideRarity = function(rarity)
+	if not cfg.puffshrooms.override or not puffChase.overrideRank[rarity] then
+		return false
+	end
+	-- this dropdown saves the rarities you UNtick
+	local unticked = cfg.puffshrooms.overriderarity
+	return type(unticked) ~= "table" or not unticked[rarity]
+end
+
+puffChase.findOverride = function()
+	if not cfg.puffshrooms.enabled or not cfg.puffshrooms.override then
+		puffChase.overrideTarget = nil
+		return
+	end
+
+	-- once we're on one, stick with it until it's gone
+	local current = puffChase.overrideTarget
+	if current and current.Parent and current:FindFirstChild("Puffball Stem") then
+		return current, puffChase.overrideRarity, puffChase.overrideLevel
+	end
+	puffChase.overrideTarget = nil
+
+	local best, bestRarity, bestLevel, bestRank, bestDist = nil, nil, nil, 0, math.huge
+	for k in pairs(tracked.puffshrooms) do
+		local top = k:FindFirstChild("Puffball Top")
+		local stem = k:FindFirstChild("Puffball Stem")
+		local attachment = top and top:FindFirstChild("Attachment")
+		local gui = attachment and attachment:FindFirstChild("Gui")
+		local nameRow = gui and gui:FindFirstChild("NameRow")
+		local label = nameRow and nameRow:FindFirstChild("TextLabel")
+
+		if label and stem and k.Parent then
+			local rarity = string.match(label.Text, "(%a*)%s+Puffshroom") or "Common"
+			if puffChase.isOverrideRarity(rarity) then
+				local field = getFieldAt(stem.Position)
+				if field and availableFields[field.Name] and not (field.Name == "Coconut Field" and not mobCooldown(monsterSpawners.CoconutCrab)) and not (field.Name == "Mountain Top Field" and tracked.mondo) then
+					local rank = puffChase.overrideRank[rarity]
+					local dist = distanceTo(stem.Position)
+					if rank > bestRank or rank == bestRank and dist < bestDist then
+						best, bestRarity, bestRank, bestDist = k, rarity, rank, dist
+						bestLevel = tonumber(string.match(label.Text, "Lvl (%d+)")) or 1
+					end
+				end
+			end
+		end
+	end
+
+	return best, bestRarity, bestLevel
+end
+
+local findPuffshroomCore
+
+-- Puffs in the field you're already in always come first (any rarity), so accounts don't run
+-- across the map for a Rare. Only "Ignore Everything" rarities pull an account to another field.
 local function findPuffshroom(v118, v119, v120)
+	if not v120 then
+		local root = getRootPart()
+		local here = root and getFieldAt(root.Position)
+		if here and (type(v118) ~= "string" or v118 == here.Name) then
+			local puff, rarity, level = findPuffshroomCore(v118, v119, v120, here.Name)
+			if puff then
+				return puff, rarity, level
+			end
+		end
+	end
+	return findPuffshroomCore(v118, v119, v120)
+end
+
+findPuffshroomCore = function(v118, v119, v120, onlyField)
 	if not v118 and not (not cfg.puffshrooms.maintain or not buffs.PuffBlessing or buffs.PuffBlessing.Text.Text ~= "x100" or not (buffs.PuffBlessing.Percent.Size.Y.Scale > 0.3)) then
 		return
 	end
 	local bestPuffshroom = nil
-	local settings = cfg.puffshrooms
-	local home = settings.zonefield
-	local function isZoneField(name)
-		return name == "Cactus Field" or name == "Pine Tree Forest" or name == "Pumpkin Patch"
-	end
-	local zoneMode = isZoneField(home)
-	local zoneOccupied, feeder = false, nil
-	local homeZone = zoneMode and workspace.FlowerZones:FindFirstChild(home)
+	local zoneMode = cfg.puffshrooms.chase and not v118 and puffChase.inZone()
 
 	for k in pairs(tracked.puffshrooms) do
 		local PuffballTop = k:FindFirstChild("Puffball Top")
@@ -59426,35 +59745,45 @@ local function findPuffshroom(v118, v119, v120)
 		end
 
 		if not (cfg.puffshrooms.mintime < remainingSeconds) then
-			tracked.puffshrooms[k] = nil
+			local earlyRarity = string.match(PuffballTop.Attachment.Gui.NameRow.TextLabel.Text, "(%a*)%s+Puffshroom") or "Common"
+			if not puffChase.isOverrideRarity(earlyRarity) then
+				tracked.puffshrooms[k] = nil
+			end
 			continue
 		end
 		local text = PuffballTop.Attachment.Gui.NameRow.TextLabel.Text
 		local puffRarity = string.match(text, "(%a*)%s+Puffshroom") or "Common"
 		local puffLevel = tonumber(string.match(text, "Lvl (%d+)")) or 1
-		local stem = k:FindFirstChild("Puffball Stem")
-		local field = stem and getFieldAt(stem.Position)
-		if zoneMode and field and isZoneField(field.Name) then
-			zoneOccupied = true
-		end
 
-		if puffLevel <= cfg.puffshrooms.max and cfg.puffshrooms.min <= puffLevel and stem then
-			if not field or not availableFields[field.Name] or not ((not cfg.puffshrooms.blacklistedfields or not cfg.puffshrooms.blacklistedfields[field.Name]) and (field.Name ~= "Mountain Top Field" or not tracked.mondo)) then
+		if puffLevel <= cfg.puffshrooms.max and k:FindFirstChild("Puffball Stem") then
+			local field = getFieldAt(k["Puffball Stem"].Position)
+			local chasing = cfg.puffshrooms.chase and not v118
+
+			if onlyField and (not field or field.Name ~= onlyField) then
 				continue
 			end
 
-			if zoneMode and field.Name ~= home then
-				local rareEnough = puffRarity == "Mythic" or puffRarity == "Legendary"
-					or (settings.outsiderarity == "Epic+" and puffRarity == "Epic")
-				if not rareEnough then
-					if homeZone and not v120 and not isZoneField(field.Name) then
-						local distance = (stem.Position - homeZone.Position).Magnitude
-						if not feeder or distance < feeder.d then
-							feeder = { d = distance, rarity = puffRarity, lvl = puffLevel, v = k }
-						end
-					end
+			if puffLevel < cfg.puffshrooms.min then
+				continue
+			end
+
+			if chasing then
+				-- chase mode: farm puffs anywhere allowed (zone fields always allowed), but leave fields another Atlas account claimed
+				if not field or not availableFields[field.Name] or (field.Name == "Mountain Top Field" and tracked.mondo) then
 					continue
 				end
+				if not puffChase.fieldSet[field.Name] and cfg.puffshrooms.blacklistedfields and cfg.puffshrooms.blacklistedfields[field.Name] then
+					continue
+				end
+				-- ZONE mode: everyone stays in the zone, so ignore puffs outside it
+				if zoneMode and not puffChase.fieldSet[field.Name] then
+					continue
+				end
+				if puffChase.isTaken(field.Name) then
+					continue
+				end
+			elseif not field or not availableFields[field.Name] or not ((not cfg.puffshrooms.blacklistedfields or not cfg.puffshrooms.blacklistedfields[field.Name]) and (field.Name ~= "Mountain Top Field" or not tracked.mondo)) then
+				continue
 			end
 
 			if not (not v120 and (cfg.puffshrooms.rarity == "Common" or not ((cfg.puffshrooms.rarity ~= "Rare" or puffRarity == "Common") and (cfg.puffshrooms.rarity ~= "Epic" or puffRarity == "Common" or puffRarity == "Rare")))) then
@@ -59476,7 +59805,7 @@ local function findPuffshroom(v118, v119, v120)
 				bestPuffshroom = { d = distance, rarity = puffRarity, lvl = puffLevel, v = k }
 			elseif puffRarity ~= "Mythic" or not (bestPuffshroom.rarity == "Common" or bestPuffshroom.rarity == "Rare" or bestPuffshroom.rarity == "Epic" or bestPuffshroom.rarity == "Legendary") then
 				if puffRarity == bestPuffshroom.rarity then
-					local priorityfields = v118 == field.Name or cfg.puffshrooms.priorityfields and cfg.puffshrooms.priorityfields[field.Name]
+					local priorityfields = v118 == field.Name or chasing and (field.Name == puffChase.field or puffChase.fieldSet[field.Name] and field.Name ~= puffChase.lowerTier) or cfg.puffshrooms.priorityfields and cfg.puffshrooms.priorityfields[field.Name]
 
 					if not ((not priorityfields or not (not bestPuffshroom.priofield or not cfg.puffshrooms.highlvlpriority and distance < bestPuffshroom.d or not (not cfg.puffshrooms.highlvlpriority or not (bestPuffshroom.lvl < puffLevel) and (puffLevel ~= bestPuffshroom.lvl or not (distance < bestPuffshroom.d))))) and not (not priorityfields and not bestPuffshroom.priofield and (not cfg.puffshrooms.highlvlpriority and distance < bestPuffshroom.d or not (not cfg.puffshrooms.highlvlpriority or not (bestPuffshroom.lvl < puffLevel) and (puffLevel ~= bestPuffshroom.lvl or not (distance < bestPuffshroom.d)))))) then
 						bestPuffshroom = { d = distance, rarity = puffRarity, lvl = puffLevel, v = k, priofield = priorityfields }
@@ -59488,9 +59817,6 @@ local function findPuffshroom(v118, v119, v120)
 		end
 	end
 
-	if not bestPuffshroom and not zoneOccupied then
-		bestPuffshroom = feeder
-	end
 	if not bestPuffshroom then
 		return
 	end
@@ -59500,9 +59826,38 @@ end
 local farmPuffshroom
 
 farmPuffshroom = function(v119)
-	local puffshroom, puffRarity, puffLevel = findPuffshroom(v119)
+	local puffshroom, puffRarity, puffLevel
+	local forced = false
+	do
+		local overridePuff, overrideRarity, overrideLevel = puffChase.findOverride()
+		if overridePuff then
+			puffshroom, puffRarity, puffLevel, forced = overridePuff, overrideRarity, overrideLevel, true
+			if puffChase.overrideTarget ~= overridePuff then
+				logger.log("Ignore everything:", overrideRarity, "Puffshroom spawned, going for it")
+			end
+			puffChase.overrideTarget = overridePuff
+			puffChase.overrideRarity = overrideRarity
+			puffChase.overrideLevel = overrideLevel
+		end
+	end
 	if not puffshroom then
+		puffshroom, puffRarity, puffLevel = findPuffshroom(v119)
+	end
+	if not puffshroom then
+		if cfg.puffshrooms.chase and not v119 and not puffChase.blessingMaxed() and puffChase.inZone() then
+			if not (cfg.sprouts.enabled and puffChase.zoneSprout()) then
+				puffChase.idle()
+			end
+		end
 		return
+	end
+	if cfg.puffshrooms.chase and not v119 then
+		local puffField = getFieldAt(puffshroom["Puffball Stem"].Position)
+		if puffField then
+			puffChase.lastClaim = 0
+			puffChase.claim(puffField.Name)
+			puffChase.swapDue = false
+		end
 	end
 	local position2 = puffshroom["Puffball Stem"].Position
 	local field = getFieldAt(position2)
@@ -59518,6 +59873,9 @@ farmPuffshroom = function(v119)
 
 		if not cfg.convert.convertHoney and not cfg.convert.convertHiveBalloon or not shouldConvert(true) then
 			logger.log(puffRarity, "Puffshroom (lvl:", puffLevel .. "): Found in", field.Name)
+			reportStatus(3)
+			fieldPositionPolicy:ReleaseIdle()
+			fieldPositionPolicy:RemoveGuards()
 			setField(field.Name)
 
 			if not (not cfg.convert.autoHoneyMask and not cfg.combat.demonmask or not (cfg.vars.movement == "Tween" or cfg.convert.defaultMask ~= "Demon Mask")) then
@@ -59550,7 +59908,7 @@ farmPuffshroom = function(v119)
 						exitTo = 1
 						break
 					elseif not cfg.convert.convertHoney and not cfg.convert.convertHiveBalloon or not shouldConvert(true) then
-						if not findPuffshroom(v119, puffshroom, puffRarity) then
+						if forced or not puffChase.findOverride() and not (cfg.puffshrooms.chase and not v119 and not puffChase.fieldSet[field.Name] and puffChase.inZone()) then
 							if not (not cfg.convert.autoHoneyMask and not cfg.combat.demonmask or not (cfg.vars.movement == "Tween" or cfg.convert.defaultMask ~= "Demon Mask")) then
 								if not localPlayer.Character:FindFirstChild(cfg.convert.defaultMask) then
 									equipAccessory(cfg.convert.defaultMask)
@@ -59567,6 +59925,10 @@ farmPuffshroom = function(v119)
 
 							if cfg.face.shiftlock then
 								input:handleShiftLock(true)
+							end
+
+							if cfg.puffshrooms.chase and not v119 then
+								puffChase.claim(field.Name)
 							end
 
 							reportStatus(3)
@@ -59603,6 +59965,111 @@ farmPuffshroom = function(v119)
 	error("return", 0)
 end
 
+-- No puffshroom in the zone: park in our chase field and farm it until one spawns,
+-- swapping to the next free field after cfg.puffshrooms.chaseswap seconds.
+puffChase.idle = function()
+	local target = puffChase.pickField()
+	if not target then
+		return
+	end
+
+	if (cfg.convert.convertHoney or cfg.convert.convertHiveBalloon) and shouldConvert(true) then
+		if shouldConvert() then
+			convertHoney()
+		end
+		error("return", 0)
+	end
+
+	if puffChase.field ~= target then
+		logger.log("Puffshroom chase: waiting in", target)
+	end
+	puffChase.lastClaim = 0
+	puffChase.claim(target)
+	puffChase.swapDue = false
+	reportStatus(3)
+	fieldPositionPolicy:ReleaseIdle()
+	fieldPositionPolicy:RemoveGuards()
+	setField(target)
+	goToField()
+
+	local arrived = os.clock()
+	local lastCheck = 0
+	local farmOptions = { loot = true }
+
+	while os.clock() - arrived < (cfg.puffshrooms.chaseswap or 15) do
+		if not RunService.Heartbeat:Wait() then
+			break
+		end
+
+		if not cfg.puffshrooms.enabled or not cfg.puffshrooms.chase then
+			break
+		end
+
+		if (cfg.convert.convertHoney or cfg.convert.convertHiveBalloon) and shouldConvert(true) then
+			if shouldConvert() then
+				convertHoney()
+			end
+			break
+		end
+
+		if os.clock() - lastCheck > 0.5 then
+			lastCheck = os.clock()
+			if puffChase.findOverride() or findPuffshroom() then
+				break
+			end
+			puffChase.claim(target)
+			-- zone emptied out: stop parking and go back to chasing
+			if not puffChase.inZone() then
+				break
+			end
+			-- a sprout popped up in the zone: go juggle it
+			if cfg.sprouts.enabled and puffChase.zoneSprout() then
+				break
+			end
+			-- another Atlas account owns this field: move if there's a free one
+			if puffChase.isTaken(target) and puffChase.hasFreeOther(target) then
+				puffChase.swapDue = true
+				break
+			end
+			-- waiting in Strawberry but a main zone field is free again
+			if target == puffChase.lowerTier and os.clock() - puffChase.lastZonePuff < (cfg.puffshrooms.chasestraw or 5) then
+				local mainFree = false
+				for _, fieldName in ipairs(puffChase.mainFields) do
+					if puffChase.usable(fieldName) then
+						mainFree = true
+						break
+					end
+				end
+				if mainFree then
+					puffChase.swapDue = true
+					break
+				end
+			end
+		end
+
+		if getFieldAt(getRootPart().Position) ~= currentField then
+			goToField()
+		end
+
+		if cfg.combat.avoidmobs then
+			getAggroMobs()
+		end
+
+		if cfg.face.shiftlock then
+			input:handleShiftLock(true)
+		end
+
+		reportStatus(3)
+		farmStep(farmOptions)
+	end
+
+	if os.clock() - arrived >= (cfg.puffshrooms.chaseswap or 15) then
+		puffChase.swapDue = true
+	end
+
+	error("return", 0)
+end
+
 local function destroyTotems()
 	for k in pairs(tracked.totems) do
 		local Part = k:FindFirstChild("Part")
@@ -59634,11 +60101,7 @@ local function destroyTotems()
 							input:handleShiftLock(true)
 						end
 
-						if field.Name ~= "Mountain Top Field" or not tracked.mondo then
-							farmStep({ skipoverlap = true })
-						else
-							handleMondoChick(true)
-						end
+						farmStep({ skipoverlap = true })
 					elseif shouldConvert() then
 						convertHoney()
 					end
@@ -59802,7 +60265,7 @@ do
 							end
 
 							if exitTo ~= 1 then
-								logger.warn(text, color)
+								logger.warn(text)
 								return
 							end
 
@@ -60254,18 +60717,28 @@ do
 
 	local function findSprout()
 		local v123 = {}
+		local zoneMode = cfg.puffshrooms.enabled and cfg.puffshrooms.chase and puffChase.inZone()
 
 		for k in pairs(tracked.sprouts) do
 			local name = k.BrickColor.Name
 			local field = getFieldAt(k.Position)
 			local sproutType = name == "Sage green" and "Basic" or name == "Light grey metallic" and "Rare" or name == "Medium blue" and "Moon" or name == "Alder" and "Gummy" or "Epic+"
+			local zoneField = field and puffChase.fieldSet[field.Name] and availableFields[field.Name]
 
-			if not field or not availableFields[field.Name] or field.Name ~= cfg.autofarm.field1 and not (not cfg.sprouts.fieldsblacklist or not cfg.sprouts.fieldsblacklist[field.Name]) then
+			if zoneMode and not zoneField then
+				continue
+			end
+			-- keep zone sprouts tracked (instead of dropping them) so ZONE mode can use them later
+			if not zoneMode and zoneField and cfg.puffshrooms.enabled and cfg.puffshrooms.chase and field.Name ~= cfg.autofarm.field1 and cfg.sprouts.fieldsblacklist and cfg.sprouts.fieldsblacklist[field.Name] then
+				continue
+			end
+
+			if not field or not availableFields[field.Name] or field.Name ~= cfg.autofarm.field1 and not zoneMode and not (not cfg.sprouts.fieldsblacklist or not cfg.sprouts.fieldsblacklist[field.Name]) then
 				tracked.sprouts[k] = nil
 			elseif not (field.Name ~= "Coconut Field" or mobCooldown(monsterSpawners.CoconutCrab)) then
 				logger.log("Sprout: Cannot farm in Coconut Field: Coconut Crab is alive")
 				tracked.sprouts[k] = nil
-			elseif not (field.Name ~= cfg.autofarm.field1 and not (not cfg.sprouts.rarity3 or not ((sproutType ~= "Basic" or cfg.sprouts.rarity3.Basic) and (sproutType ~= "Rare" or cfg.sprouts.rarity3.Rare) and (sproutType ~= "Moon" or cfg.sprouts.rarity3.Moon) and (sproutType ~= "Gummy" or cfg.sprouts.rarity3.Gummy) and (sproutType ~= "Epic+" or cfg.sprouts.rarity3["Epic+"])))) then
+			elseif not (field.Name ~= cfg.autofarm.field1 and not zoneMode and not (not cfg.sprouts.rarity3 or not ((sproutType ~= "Basic" or cfg.sprouts.rarity3.Basic) and (sproutType ~= "Rare" or cfg.sprouts.rarity3.Rare) and (sproutType ~= "Moon" or cfg.sprouts.rarity3.Moon) and (sproutType ~= "Gummy" or cfg.sprouts.rarity3.Gummy) and (sproutType ~= "Epic+" or cfg.sprouts.rarity3["Epic+"])))) then
 				if not v123.rarity then
 					v123 = { rarity = sproutType, v = k, field = field }
 				elseif not (sproutType ~= "Rare" or v123.rarity ~= "Basic") then
@@ -60349,6 +60822,13 @@ do
 
 					if not (not newSprout or not (newSprout ~= sprout and not ((newSproutType ~= "Rare" or sproutType ~= "Basic") and (newSproutType ~= "Moon" or not (sproutType == "Basic" or sproutType == "Rare")) and (newSproutType ~= "Epic" or not (sproutType == "Basic" or sproutType == "Rare" or sproutType == "Moon"))))) then
 						error("return", 0)
+					end
+
+					if cfg.puffshrooms.enabled and os.clock() - puffChase.lastJuggle > 0.5 then
+						puffChase.lastJuggle = os.clock()
+						if puffChase.findOverride() or cfg.puffshrooms.chase and puffChase.inZone() and findPuffshroom() then
+							error("return", 0)
+						end
 					end
 
 					reportStatus(1, sproutField.Name)
@@ -63180,7 +63660,7 @@ end
 								end
 
 								if not v134.Progress then
-									questData:Status("Debug:", v138 .. " / " .. v139, desc)
+									questData:Status("Debug:", v138 .. " / " .. v139)
 								end
 
 								questData:Status("Auto Quest: Feeding x" .. v140, match, "to bee at", v141.Col, v141.Row)
@@ -63260,7 +63740,7 @@ end
 								end
 
 								if not v134.Progress or not v134.Level then
-									questData:Status("Debug:", "lvl", v139, v137 .. " / " .. v138, desc)
+									questData:Status("Debug:", "lvl", v139, v137 .. " / " .. v138)
 								end
 
 								local col = v140.Col
@@ -63347,7 +63827,7 @@ end
 								end
 
 								if not v134.Progress then
-									questData:Status("Debug:", v137 .. " / " .. v138, desc)
+									questData:Status("Debug:", v137 .. " / " .. v138)
 								end
 
 								questData:Status("Auto Quest: Using Royal Jelly on bee at", v139.Col, v139.Row)
@@ -64195,6 +64675,8 @@ end
 									end
 								end
 
+								local questCache = gameApi:Cache()
+								local gummylair = state.bees >= 15 and questCache.Badges and questCache.Badges.Goo and questCache.Badges.Goo >= 2
 								if not (not name or not (name == "BasicShop" or not ((name ~= "ProShop" or not (state.bees >= 10)) and (name ~= "Mountaintop" or not (state.bees >= 25)) and (name ~= "Petal Shop" or not (state.bees >= 35)) and (name ~= "BlueHQ" or not state.bluehq) and (name ~= "RedHQ" or not state.redhq) and (name ~= "GummyBearShop" or not gummylair)))) then
 									questData:Status("Auto Quest: Equipping", autoquest.oldtool, "(Last Tool)")
 									local ok = nil
@@ -66202,25 +66684,28 @@ end
 				"PlentyPlanter",
 			},
 		},
-		HatchEgg = function()
-			local honeycomb, v135
+		HatchEgg = function(progression, honeycomb, eggType)
+			if type(honeycomb) ~= "table" or not eggType or not state.hive or not state.hive.Cells then
+				return
+			end
+
+			local isEmptyHive = true
 
 			for k in pairs(honeycomb) do
-				v135 = nil
+				isEmptyHive = false
 				break
 			end
 
-			local eggType, progression
-
-			if not v135 then
+			if not isEmptyHive then
 				local emptyCell
 
 				for i = 1, 10 do
 					for i2 = 1, 5 do
 						local hiveColumn = honeycomb["x" .. i2]
 						local isAdjacent = false
+						local hiveCell = state.hive.Cells:FindFirstChild("C" .. i2 .. "," .. i)
 
-						if not hiveColumn or not hiveColumn["y" .. i] and not state.hive.Cells["C" .. i2 .. "," .. i].CellLocked.Value then
+						if hiveCell and (not hiveColumn or not hiveColumn["y" .. i]) and not hiveCell.CellLocked.Value then
 							for i3 = -1, 1, 2 do
 								if not ((not hiveColumn or not hiveColumn["y" .. i + i3]) and (not (i2 < 5) or not honeycomb["x" .. i2 + 1] or not honeycomb["x" .. i2 + 1]["y" .. i]) and not (not not (i2 > 1) and not (not honeycomb["x" .. i2 - 1] or not honeycomb["x" .. i2 - 1]["y" .. i]))) then
 									isAdjacent = true
@@ -66311,7 +66796,10 @@ end
 
 			progression.time = os.clock()
 			local playerData = gameApi:Cache()
-			local honeycomb = playerData.Honeycomb
+			if type(playerData) ~= "table" then
+				return
+			end
+			local honeycomb = type(playerData.Honeycomb) == "table" and playerData.Honeycomb or {}
 			local cellCount = 0
 			local data = nil
 			local hasEmptyCell = nil
@@ -66333,13 +66821,15 @@ end
 			end
 
 			if not data or cellCount < data then
-				for i = 1, 5 do
-					if not hasEmptyCell then
-						for i2 = 1, 10 do
-							local hiveCell = state.hive.Cells["C" .. i .. "," .. i2]
-							if not hiveCell.CellLocked.Value and not hiveCell:FindFirstChild("Faceplate") then
-								hasEmptyCell = true
-								break
+				if state.hive and state.hive.Cells then
+					for i = 1, 5 do
+						if not hasEmptyCell then
+							for i2 = 1, 10 do
+								local hiveCell = state.hive.Cells:FindFirstChild("C" .. i .. "," .. i2)
+								if hiveCell and not hiveCell.CellLocked.Value and not hiveCell:FindFirstChild("Faceplate") then
+									hasEmptyCell = true
+									break
+								end
 							end
 						end
 					end
@@ -66417,7 +66907,7 @@ end
 							continue
 						end
 
-						for _, trait in ipairs(beeData.Traits) do
+						for _, trait in ipairs(beeData.Traits or {}) do
 							if trait == "Gifted" then
 								isGifted = true
 								break
@@ -66464,16 +66954,16 @@ end
 			local route2 = cfg.toys.route or progression.default
 
 			for _, routeItem in ipairs_2(route2) do
-				if not (routeItem.Type ~= "Present" or not (playerData.Eggs.Present > 0)) then
+				if not (routeItem.Type ~= "Present" or not ((playerData.Eggs and playerData.Eggs.Present or 0) > 0)) then
 					local ipairs_3 = ipairs
 					local data2 = type(routeItem.Data) == "table" and routeItem.Data or { routeItem.Data }
 
 					for _, label in ipairs_3(data2) do
-						if playerData.Eggs.Present > 0 and (label == "Brown Bear" or label == "Black Bear" or label == "Mother Bear" or not ((label ~= "Spirit Bear" or state.bees ~= 35) and (label ~= "Onett" or not (state.bees >= 30)) and not ((label == "Polar Bear" or label == "Honey Bee") and state.bees >= 15 or not ((label ~= "Dapper Bear" or not (not not (state.bees >= 10) and dapperShopOpen)) and (label ~= "Riley Bee" or not (not not (state.bees >= 15) and state.redhq)) and (label ~= "Bucko Bee" or not state.bluehq) and (label ~= "Science Bear" or not (state.bees >= 10)) and (label ~= "Panda Bear" or not (state.bees >= 5)))))) then
+						if (playerData.Eggs and playerData.Eggs.Present or 0) > 0 and (label == "Brown Bear" or label == "Black Bear" or label == "Mother Bear" or not ((label ~= "Spirit Bear" or state.bees ~= 35) and (label ~= "Onett" or not (state.bees >= 30)) and not ((label == "Polar Bear" or label == "Honey Bee") and state.bees >= 15 or not ((label ~= "Dapper Bear" or not (not not (state.bees >= 10) and dapperShopOpen)) and (label ~= "Riley Bee" or not (not not (state.bees >= 15) and state.redhq)) and (label ~= "Bucko Bee" or not state.bluehq) and (label ~= "Science Bear" or not (state.bees >= 10)) and (label ~= "Panda Bear" or not (state.bees >= 5)))))) then
 							local alreadyDelivered = true
 
 							if label == "Robo Bear" or label == "Bucko Bee" or label == "Riley Bee" then
-								for _, completedQuest in ipairs(playerData.Quests.Completed) do
+								for _, completedQuest in ipairs((playerData.Quests and playerData.Quests.Completed) or {}) do
 									if string.gsub(label, " ", "") .. "Xmas25" == completedQuest then
 										alreadyDelivered = nil
 										break
@@ -66484,7 +66974,7 @@ end
 							end
 
 							if not alreadyDelivered then
-								for _, playerFlag in ipairs(playerData.Flags) do
+								for _, playerFlag in ipairs(playerData.Flags or {}) do
 									if label .. "Xmas2025" == playerFlag then
 										alreadyDelivered = true
 										break
@@ -66619,7 +67109,7 @@ end
 								local ipairs_3 = ipairs
 								local inventoryKey = itemCategory == "Accessory" and "Accessories" or itemCategory .. "s"
 
-								for _, ownedItem in ipairs_3(playerData[inventoryKey]) do
+								for _, ownedItem in ipairs_3(playerData[inventoryKey] or {}) do
 									local ownedItemIndex = table.find(itemList, ownedItem)
 
 									if not (not ownedItemIndex or not (not ownedIndex or ownedIndex < ownedItemIndex)) then
@@ -67456,6 +67946,11 @@ end
 				end
 
 				local n, O = pcall(function()
+					if puffChase.findOverride() then
+						closePopups()
+						farmPuffshroom()
+					end
+
 					local followingTeam=comboController:FollowingMain()
 					if cfg.rbc.enabled and not followingTeam and not (cfg.autofarm.enabled and cfg.autofarm.idlefieldloop and cfg.autofarm.stumpsmileyonly) then
 						rbcAmuletCheck()
@@ -68218,7 +68713,7 @@ end)
 do
 	local Home = controls.home.AddFolder("Home")
 	local uptimeLabel = Home.AddLabel("Uptime: 00:00:00")
- Home.AddLabel("Giao diện VI2 · Mô tả đầy đủ")
+ Home.AddLabel("VI3 · Nền DarkBotGen 22/11/2026 · 5929707")
 	local serverUptimeLabel = Home.AddLabel("Server Uptime: " .. formatTime(workspace.ServerTime.Value))
 	Home.AddHorizontalAlignment()
 	local sessionHoneyLabel = Home.AddLabel("Session Honey: 0?")
@@ -68243,29 +68738,29 @@ do
 	end)
 
 	controls["Stop Everything"] = Home.AddSwitch("Stop Everything", function(stop)
-  if stop then
-   -- Set the global flag before cancellation callbacks can resume workers.
-   state.stop = true
-   if threads:Get("Autofarm") then
-    threads:Cancel("Autofarm")
-    stopMovement()
-   end
-   if showerController.cancel then showerController.cancel("Stop Everything") end
-   return
-  end
-  for _, amuletName in ipairs({ "Moon Amulet", "Star Amulet", "Mutations", "Royal Jelly", "Gifted Basic" }) do
-   if threads:Get("Auto " .. amuletName) then
-    ui.Notify("Warning", "Auto " .. amuletName .. " is still running")
-    controls["Stop Everything"].Set(true)
-    return
-   end
-  end
-  state.stop = nil
-  showerController:ResumeOthers()
-  if cfg.autofarm.enabled and not threads:Get("Autofarm") then
-   threads:Add("Autofarm", autofarmLoop)
-  end
- end)
+		if not stop or not threads:Get("Autofarm") then
+			if not stop then
+				for _, amuletName in ipairs({ "Moon Amulet", "Star Amulet", "Mutations", "Royal Jelly", "Gifted Basic" }) do
+					if not threads:Get("Auto " .. amuletName) then
+						continue
+					end
+					ui.Notify("Warning", "Auto " .. amuletName .. " is still running")
+					controls["Stop Everything"].Set(true)
+					return
+				end
+
+				if not (not cfg.autofarm.enabled or threads:Get("Autofarm")) then
+					threads:Add("Autofarm", autofarmLoop)
+				end
+			end
+		else
+			threads:Cancel("Autofarm")
+			stopMovement()
+		end
+
+		state.stop = stop or nil
+		if stop and showerController.cancel then showerController.cancel("Stop Everything") end
+	end)
 
 	Home.Toggle(true)
 end
@@ -68353,17 +68848,11 @@ do
 	local playerStats = gameApi:Cache()
 	if type(playerStats)~="table" then error("Atlas+ startup: player stats are not ready",0) end
 	local userId = playerStats.UserId
-	local loadTime = playerStats.LoadTime
-	if not userId or tonumber(tostring(userId)) ~= userId or not (not (userId <= 0) and not (not loadTime or tonumber(tostring(loadTime)) ~= loadTime or not (not (loadTime < 1.7e9) and not (loadTime > 2e9 or not (not isfunctionhooked(os.time) and not isfunctionhooked(os.date) and not isfunctionhooked(gameApi.ClientStatCache.Get)))))) then
+	if type(userId) ~= "number" or userId <= 0 then
 		return
 	end
-	local userFlag = userIdFlags[userId]
 
-	if userFlag == true then
-		error("Atlas test: upstream policy refused this account; stopped without external scripts.",0)
-	end
-
-	if not (userFlag == false or not localPlayer.UserId or not (not (localPlayer.UserId <= 0) and userId == localPlayer.UserId)) then
+	if type(localPlayer.UserId) == "number" and localPlayer.UserId > 0 and userId == localPlayer.UserId then
 		local userId2 = localPlayer.UserId
 
 		if tonumber(tostring(localPlayer.UserId)) == userId2 then
@@ -68434,17 +68923,13 @@ do
 				fieldIntervalSlider.SetVisible(false)
 
 				Farming.AddSwitch("Autofarm", function(n)
-  if n then
-   if not state.stop and not threads:Get("Autofarm") then
-    threads:Add("Autofarm", autofarmLoop)
-   end
-  else
-   -- Remove a queued job too, even when there is no live Autofarm coroutine.
-   threads:Cancel("Autofarm")
-   stopMovement()
-   if showerController.cancel then showerController.cancel("Autofarm disabled") end
-  end
- end, "autofarm", "enabled")
+					if n and not state.stop and not threads:Get("Autofarm") then
+						threads:Add("Autofarm", autofarmLoop)
+					elseif not n and threads:Get("Autofarm") then
+						threads:Cancel("Autofarm")
+						stopMovement()
+					end
+				end, "autofarm", "enabled")
 
 				controls["Auto Sprinkler"] = Farming.AddSwitch("Auto Sprinkler", function(n)
 					if n and not connections:Get("sprinklers") then
@@ -68938,6 +69423,10 @@ which bees and get all 3 targets if
 				elseif not n then
 					connections:Cancel("puffshrooms")
 					connections:Cancel("puffshrooms2")
+					table.clear(tracked.puffshrooms)
+					puffChase.zone = false
+					puffChase.overrideTarget = nil
+					puffChase.field = nil
 				end
 			end, "puffshrooms", "enabled")
 
@@ -68947,10 +69436,58 @@ which bees and get all 3 targets if
 			Puffshrooms.AddSlider("Maximum Level", nil, 1, 30, "puffshrooms", "max", { Left = true })
 			Puffshrooms.AddSlider("Minimum Time (seconds)", nil, 1, 60, "puffshrooms", "mintime", { Left = true })
 			Puffshrooms.AddDropdown("Minimum Rarity", { "Common", "Rare", "Epic" }, nil, nil, "puffshrooms", "rarity")
-			Puffshrooms.AddDropdown("15 Bee Zone Field", { "Off", "Cactus Field", "Pine Tree Forest", "Pumpkin Patch" }, nil, nil, "puffshrooms", "zonefield")
-			Puffshrooms.AddDropdown("Outside Assigned Field", { "Legendary+", "Epic+" }, nil, nil, "puffshrooms", "outsiderarity")
 			Puffshrooms.AddDropdown("Allowed Fields", availableFields, true, nil, "puffshrooms", "blacklistedfields", { Field = true, Multiple = true, Blacklist = true })
 			Puffshrooms.AddDropdown("Priority Fields", availableFields, true, nil, "puffshrooms", "priorityfields", { Field = true, Multiple = true })
+			Puffshrooms.AddSwitch("Chase to 15 Bee Zone", nil, "puffshrooms", "chase")
+			Puffshrooms.AddDropdown("Preferred Chase Field", puffChase.mainFields, nil, nil, "puffshrooms", "chasefield")
+			Puffshrooms.AddSlider("Swap Field After (seconds)", nil, 5, 120, "puffshrooms", "chaseswap", { Left = true })
+			Puffshrooms.AddSlider("Zone Mode From Level", nil, 1, 15, "puffshrooms", "chasemin", { Left = true })
+			Puffshrooms.AddSlider("Leave Zone After (seconds)", nil, 1, 60, "puffshrooms", "chaseleave", { Left = true })
+			Puffshrooms.AddSlider("Use Strawberry After (seconds)", nil, 1, 60, "puffshrooms", "chasestraw", { Left = true })
+			Puffshrooms.AddLabel("Chases puffs anywhere until one hits the level in the zone")
+			Puffshrooms.AddSwitch("Ignore Everything And Farm Puff", function(n)
+				if not n then
+					threads:Cancel("puffoverride")
+					puffChase.overrideTarget = nil
+					return
+				end
+				threads:Add("puffoverride", function()
+					while task.wait(0.5) do
+						if not cfg.puffshrooms.enabled or not cfg.autofarm.enabled or state.stop or state.hivePending
+							or (mondoHop and mondoHop.active) or comboController.active or showerController.active then
+							continue
+						end
+						local previous = puffChase.overrideTarget
+						local puff = puffChase.findOverride()
+						-- a new override puff: interrupt whatever we're doing and restart the farm loop on it
+						if puff and puff ~= previous and os.clock() - puffChase.lastOverrideKick > 3 then
+							puffChase.lastOverrideKick = os.clock()
+							puffChase.overrideTarget = puff
+							if threads:Get("Autofarm") then
+								threads:Cancel("Autofarm")
+								if state.movementTween then
+									local tween = state.movementTween
+									state.movementTween = nil
+									pcall(function() tween:Cancel(); tween:Destroy() end)
+								end
+								state.fasttween = nil
+								crabPlatformSupport:Release()
+								meteorMovement:Release()
+								fieldPositionPolicy:ReleaseIdle()
+								fieldPositionPolicy:RemoveGuards()
+								stopMovement()
+							end
+							if not state.stop and cfg.autofarm.enabled and not threads:Get("Autofarm") then
+								threads:Add("Autofarm", autofarmLoop)
+							end
+						end
+					end
+				end)
+			end, "puffshrooms", "override")
+			Puffshrooms.AddDropdown("Ignore Everything For", { "Epic", "Legendary", "Mythic" }, nil, nil, "puffshrooms", "overriderarity", { Multiple = true, Blacklist = true })
+			Puffshrooms.AddLabel("Ticked rarities: every account drops everything for it")
+			Puffshrooms.AddLabel("Accounts finish puffs in their field before moving")
+			Puffshrooms.AddLabel("Chase: alts on the same PC split into their own fields")
 			followFolder.AddLabel("This will not work if hide other players is enabled")
 			followFolder.AddDropdown("Follow Player", "Players", nil, nil, "misc", "follow", { Start = "None" })
 			followFolder.AddDropdown("Allowed Fields", availableFields, true, nil, "misc", "followfieldblacklist", { Field = true, Multiple = true, Blacklist = true })
@@ -70945,7 +71482,7 @@ which bees and get all 3 targets if
 				for _, configPath in ipairs(listfiles("atlas-test")) do
 					local normalizedPath = string.gsub(configPath, "\\", "/")
 
-					if not (normalizedPath == "atlas-test/default.json" or normalizedPath == "atlas-test/default.json" or not string.find(normalizedPath, ".json")) then
+					if not (normalizedPath == "atlas-test/default.json" or not string.find(normalizedPath, ".json")) then
 						local add = configDropdown.Add
 						local configName = string.gsub(string.gsub(normalizedPath, "atlas-test/", ""), ".json", "")
 						add(configName)
@@ -71515,7 +72052,7 @@ Are you sure you want to enable it?]])
 								break
 							end
 
-							if not ((wait and 5 or 3) < os.clock() - now3) then
+							if not (5 < os.clock() - now3) then
 								continue
 							end
 							break
@@ -71757,5 +72294,3 @@ Are you sure you want to enable it?]])
 		end
 	end
 end
-
-error("Atlas test: upstream startup policy rejected this session.",0)

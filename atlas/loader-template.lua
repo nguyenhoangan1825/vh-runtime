@@ -1,4 +1,4 @@
--- Atlas VI1: source hosted and pinned in nguyenhoangan1825/vh-runtime.
+-- Atlas VI3: source hosted and pinned in nguyenhoangan1825/vh-runtime.
 -- Full editable source: atlas/source.lua; provenance: atlas/ORIGIN.md.
 -- Config folder: atlas-test/. Diagnostic variant adds observation-only logs.
 local SOURCE_URL = @@SOURCE_URL@@
