@@ -1,16 +1,11 @@
--- Atlas D1-20261124: observation-only diagnostics on the published Resume build.
--- Based on our prior test launcher and pinned third-party Atlas build.
--- Base: DarkBotGen/atlasbss @ 88492a18a102cdeadae279c5c2ac363816cd1b91
--- Configs: atlas-test/. Live Roblox behavior has not been verified here.
--- Cach dung: vao Bee Swarm Simulator, dong Atlas cu, copy toan bo file va dan vao executor.
--- Day la launcher thu nghiem: can Internet de tai dung commit source da kiem tra.
--- Da qua compile Luau 0.748 va 20 kiem tra launcher cuc bo; chua test trong Roblox.
--- Loi khi chay duoc ghi ra console; neu co writefile, xem atlas-test-error.log.
-local SOURCE_URL = "https://raw.githubusercontent.com/DarkBotGen/atlasbss/88492a18a102cdeadae279c5c2ac363816cd1b91/atlasbss.lua"
-local EXPECTED_BYTES = 2673837
-local EXPECTED_ADLER = 3442727789
-local PATCHED_ADLER = 4292441072
-local TAG = "[Atlas D1] "
+-- Atlas VI1: source hosted and pinned in nguyenhoangan1825/vh-runtime.
+-- Full editable source: atlas/source.lua; provenance: atlas/ORIGIN.md.
+-- Config folder: atlas-test/. Diagnostic variant adds observation-only logs.
+local SOURCE_URL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/fb65abd78bf481c4a0500cbd73c76679f173136b/atlas/source.lua"
+local EXPECTED_BYTES = 2689084
+local EXPECTED_ADLER = 4245394029
+local PATCHED_ADLER = 3979008188
+local TAG = "[Atlas VI1 D1] "
 local env = getgenv and getgenv() or _G
 local function fail(message) error(TAG .. tostring(message), 0) end
 local function log(message) print(TAG .. tostring(message)) end
@@ -34,135 +29,6 @@ local function patchSource(source)
  if #source~=EXPECTED_BYTES or checksum(source)~=EXPECTED_ADLER then
   fail("Downloaded source differs from the reviewed build; stopped.")
  end
- local first="\n\tif userFlag == true then\n"
- local last="\n\tif not (userFlag == false or not localPlayer.UserId"
- local a=assert(string.find(source,first,1,true),"Missing refusal branch")
- local b=assert(string.find(source,last,a+#first,true),"Missing branch boundary")
- local stop="\n\tif userFlag == true then\n\t\terror(\"Atlas test: upstream policy refused this account; stopped without external scripts.\",0)\n\tend\n"
- source=string.sub(source,1,a-1)..stop..string.sub(source,b)
- local tail=assert(string.find(source,"\nlocalPlayer:Kick(\"You are blacklisted",1,true),"Missing fallback boundary")
- source=string.sub(source,1,tail-1).."\nerror(\"Atlas test: upstream startup policy rejected this session.\",0)\n"
- source=replaceLiteral(source,[=[while not localPlayer.PlayerGui:FindFirstChild("LoadingScreenGui") or localPlayer.PlayerGui.LoadingScreenGui.LoadingMessage.Visible do
-	RunService.Heartbeat:Wait()
-end]=],[=[do
- local deadline=os.clock()+90
- while true do
-  local playerGui=localPlayer:FindFirstChild("PlayerGui")
-  local loading=playerGui and playerGui:FindFirstChild("LoadingScreenGui")
-  local message=loading and loading:FindFirstChild("LoadingMessage")
-  if playerGui and (not loading or not message or not message.Visible) then break end
-  if os.clock()>deadline then error("Atlas test: loading screen timeout (90s).",0) end
-  RunService.Heartbeat:Wait()
- end
-end]=],1)
- source=replaceLiteral(source,'loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkBotGen/atlasbss/main/atlasbss.lua"))()','getgenv().__AtlasRebuiltTestReload()',1)
- source=replaceLiteral(source,'"atlas-','"atlas-test-',9)
- source=replaceLiteral(source,'"atlas/','"atlas-test/',26)
- source=replaceLiteral(source,'"atlas"','"atlas-test"',3)
- source=replaceLiteral(source,[=[function showerController:ResumeOthers()
-	self.suspending = false
-	if state then state.stopface = self.previousStopface end
-	local paused = self.paused
-	self.paused = {}
-	if self.shuttingDown or threads.closed or not state or state.stop then return end
-	for id, job in pairs(paused) do
-		if id == "Autofarm" and not cfg.autofarm.enabled then continue end
-		if id == "fasttween" and not cfg.detected.background then continue end
-		if not threads:Get(id) then
-			threads:Add(id, job.callback, job.delaySeconds, table.unpack(job.args,1,job.args.n))
-		end
-	end
-end
-]=],[=[function showerController:ResumeOthers()
- -- Atlas Resume Fix 2026-11-24: keep suspended jobs until Stop is released.
- self.suspending = false
- if state then state.stopface = self.previousStopface end
- if self.shuttingDown or threads.closed or not state then
-  table.clear(self.paused)
-  return
- end
- if state.stop then return end
- local paused = self.paused
- self.paused = {}
- for id, job in pairs(paused) do
-  if id == "Autofarm" and not cfg.autofarm.enabled then continue end
-  if id == "walkspeed" and not cfg.vars.walkspeedenabled then continue end
-  if id == "autodig" and not cfg.autofarm.autodig then continue end
-  if id == "fasttween" and not cfg.detected.background then continue end
-  if not threads:Get(id) then
-   threads:Add(id, job.callback, job.delaySeconds, table.unpack(job.args,1,job.args.n))
-  end
- end
-end
-]=],1)
- source=replaceLiteral(source,[=[controls["Stop Everything"] = Home.AddSwitch("Stop Everything", function(stop)
-		if not stop or not threads:Get("Autofarm") then
-			if not stop then
-				for _, amuletName in ipairs({ "Moon Amulet", "Star Amulet", "Mutations", "Royal Jelly", "Gifted Basic" }) do
-					if not threads:Get("Auto " .. amuletName) then
-						continue
-					end
-					ui.Notify("Warning", "Auto " .. amuletName .. " is still running")
-					controls["Stop Everything"].Set(true)
-					return
-				end
-
-				if not (not cfg.autofarm.enabled or threads:Get("Autofarm")) then
-					threads:Add("Autofarm", autofarmLoop)
-				end
-			end
-		else
-			threads:Cancel("Autofarm")
-			stopMovement()
-		end
-
-		state.stop = stop or nil
-		if stop and showerController.cancel then showerController.cancel("Stop Everything") end
-	end)
-]=],[=[controls["Stop Everything"] = Home.AddSwitch("Stop Everything", function(stop)
-  if stop then
-   -- Set the global flag before cancellation callbacks can resume workers.
-   state.stop = true
-   if threads:Get("Autofarm") then
-    threads:Cancel("Autofarm")
-    stopMovement()
-   end
-   if showerController.cancel then showerController.cancel("Stop Everything") end
-   return
-  end
-  for _, amuletName in ipairs({ "Moon Amulet", "Star Amulet", "Mutations", "Royal Jelly", "Gifted Basic" }) do
-   if threads:Get("Auto " .. amuletName) then
-    ui.Notify("Warning", "Auto " .. amuletName .. " is still running")
-    controls["Stop Everything"].Set(true)
-    return
-   end
-  end
-  state.stop = nil
-  showerController:ResumeOthers()
-  if cfg.autofarm.enabled and not threads:Get("Autofarm") then
-   threads:Add("Autofarm", autofarmLoop)
-  end
- end)
-]=],1)
- source=replaceLiteral(source,[=[Farming.AddSwitch("Autofarm", function(n)
-					if n and not state.stop and not threads:Get("Autofarm") then
-						threads:Add("Autofarm", autofarmLoop)
-					elseif not n and threads:Get("Autofarm") then
-						threads:Cancel("Autofarm")
-						stopMovement()
-					end
-				end, "autofarm", "enabled")]=],[=[Farming.AddSwitch("Autofarm", function(n)
-  if n then
-   if not state.stop and not threads:Get("Autofarm") then
-    threads:Add("Autofarm", autofarmLoop)
-   end
-  else
-   -- Remove a queued job too, even when there is no live Autofarm coroutine.
-   threads:Cancel("Autofarm")
-   stopMovement()
-   if showerController.cancel then showerController.cancel("Autofarm disabled") end
-  end
- end, "autofarm", "enabled")]=],1)
  source=replaceLiteral(source,[====[local connections = { list = {}, closed = false }]====],[====[local connections = { list = {}, closed = false }
 local farmDiagnostic = {
  build="D1-20261124", phases=setmetatable({}, {__mode="k"}),
@@ -327,8 +193,8 @@ end
  source=replaceLiteral(source,[====[	if _G.atlas == ScreenGui then _G.atlas = nil end
 ]====],[====[	if _G.atlas == ScreenGui then _G.atlas = nil;_G.__AtlasGetDiagnostic=nil end
 ]====],1)
- source=replaceLiteral(source,[====[local title = "Atlas+"]====],[====[local title = "Atlas+ [D1]"]====],1)
- if checksum(source)~=PATCHED_ADLER then fail("Patched source checksum mismatch.") end
+ source=replaceLiteral(source,[====[local title = "Atlas+ [VI1]"]====],[====[local title = "Atlas+ [VI1 D1]"]====],1)
+ if checksum(source)~=PATCHED_ADLER then fail("Patched source checksum mismatch.")end
  return source
 end
 local function preflight()
@@ -369,7 +235,7 @@ local function executePatched()
 end
 local function start()
  preflight()
- log("Downloading pinned reconstructed build...")
+ log("Downloading your pinned Atlas source...")
  local ok,source=pcall(function()return game:HttpGet(SOURCE_URL)end)
  if not ok or type(source)~="string"then fail("Download failed: "..tostring(source))end
  patchedSource=patchSource(source)
