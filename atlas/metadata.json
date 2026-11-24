@@ -1,0 +1,14 @@
+{
+  "ui": "VI1",
+  "source_sha256": "ffdc436e3327f2a82e6e9e7e8f4411ce25c48fd5db076796e9cb7edebce683cd",
+  "source_adler32": 4245394029,
+  "source_bytes": 2689084,
+  "dictionary_entries": 86,
+  "static_notes_checked": 59,
+  "tooltips_checked": 22,
+  "ui_patch_regions": 14,
+  "gameplay_blocks_preserved": true,
+  "debug_sha256": "e06c0fec1e1715aff377cdb1497b2f96a12ad5f9cb8520c89c5fb0cb57395091",
+  "debug_adler32": 3979008188,
+  "debug_bytes": 2695059
+}
