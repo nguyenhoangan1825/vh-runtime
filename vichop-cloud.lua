@@ -1,4 +1,3 @@
--- VicHop own cloud loader. Set mainuser and optional hook before running.
-local env = getgenv()
-env.VicHopReleaseURL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/fe51834109b310f6a2d6b5cc5a81190f98fe8544/v3.lua"
-loadstring(game:HttpGet(env.VicHopReleaseURL))()
+-- VicHop 3.2: Main kill + Stinger summary, own cloud.
+getgenv().VicHopReleaseURL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/ff55a24bb393bc8f7bc7ebc3dfb5cc12af51e319/v3.lua"
+loadstring(game:HttpGet(getgenv().VicHopReleaseURL))()
