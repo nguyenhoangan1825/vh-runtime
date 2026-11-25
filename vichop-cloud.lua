@@ -1,3 +1,3 @@
--- VicHop 3.2: Main kill + Stinger summary, own cloud.
-getgenv().VicHopReleaseURL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/ff55a24bb393bc8f7bc7ebc3dfb5cc12af51e319/v3.lua"
+-- VicHop 3.3: fast reports, target lifetime, 12s travel claims, saved Tween slider.
+getgenv().VicHopReleaseURL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/4b803fa7d5fc5e62c7148efb90d85a00930a8338/v3.lua"
 loadstring(game:HttpGet(getgenv().VicHopReleaseURL))()

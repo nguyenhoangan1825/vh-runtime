@@ -1,6 +1,6 @@
--- VicHop 3.2: Lite searchers; Main retains stats and kill webhook.
+-- VicHop 3.3: Lite searchers; Main retains kill/Stinger stats and saved speed.
 local g = getgenv()
 g.VicHopOwnConfig = type(g.VicHopOwnConfig) == "table" and g.VicHopOwnConfig or {}
 g.VicHopOwnConfig.searcher_low_resource = true
-g.VicHopReleaseURL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/ff55a24bb393bc8f7bc7ebc3dfb5cc12af51e319/v3.lua"
+g.VicHopReleaseURL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/4b803fa7d5fc5e62c7148efb90d85a00930a8338/v3.lua"
 loadstring(game:HttpGet(g.VicHopReleaseURL))()
