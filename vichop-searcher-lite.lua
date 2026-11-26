@@ -1,6 +1,6 @@
--- VicHop 3.3.1: finish current Vic first; preserve Lite searchers and saved settings.
+-- VicHop 3.4.0: event-aware fast scans and parallel next-server preparation.
 local g = getgenv()
 g.VicHopOwnConfig = type(g.VicHopOwnConfig) == "table" and g.VicHopOwnConfig or {}
 g.VicHopOwnConfig.searcher_low_resource = true
-g.VicHopReleaseURL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/86137cb7c17d45bb941ce092a9a51f36ee6f38fe/v3.lua"
+g.VicHopReleaseURL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/d7c73602d89d0bf0b537af94210a09731284cb31/v3.lua"
 loadstring(game:HttpGet(g.VicHopReleaseURL))()
