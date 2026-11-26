@@ -1,3 +1,3 @@
--- VicHop 3.4.0: fast Searcher scans; Main finishes the current Vic first.
-getgenv().VicHopReleaseURL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/d7c73602d89d0bf0b537af94210a09731284cb31/v3.lua"
+-- VicHop 3.3.1 rollback: keep the current Vic fight before changing servers.
+getgenv().VicHopReleaseURL = "https://raw.githubusercontent.com/nguyenhoangan1825/vh-runtime/86137cb7c17d45bb941ce092a9a51f36ee6f38fe/v3.lua"
 loadstring(game:HttpGet(getgenv().VicHopReleaseURL))()
